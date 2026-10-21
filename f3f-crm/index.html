@@ -1,0 +1,1445 @@
+<title>F3F Energy CRM</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: barra lateral fixa de módulos + área de trabalho com cabeçalho de busca. Tema escuro primeiro, ambar "solar" como destaque, verde-agua para dados. */
+:root{
+  --bg:#0c1013; --panel:#131a1f; --panel-2:#192228; --line:#253039; --line-2:#31404b;
+  --fg:#e5ecef; --muted:#8a9aa5; --faint:#5d6d78;
+  --accent:#f2a627; --accent-ink:#1b1204; --accent-soft:rgba(242,166,39,.14); --accent-text:#f5b545;
+  --volt:#3cc4bb; --volt-soft:rgba(60,196,187,.14);
+  --ok:#47c08a; --ok-soft:rgba(71,192,138,.15);
+  --warn:#eab03a; --warn-soft:rgba(234,176,58,.16);
+  --bad:#ee6262; --bad-soft:rgba(238,98,98,.16);
+  --info:#7ea6ff; --info-soft:rgba(126,166,255,.15);
+  --shadow:0 12px 40px rgba(0,0,0,.45);
+  --f-display:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  color-scheme:dark;
+}
+@media (prefers-color-scheme: light){:root:not([data-theme="dark"]){
+  --bg:#f3f5f6; --panel:#ffffff; --panel-2:#eef2f4; --line:#d9e1e6; --line-2:#c7d2d9;
+  --fg:#111a20; --muted:#55666f; --faint:#8395a0;
+  --accent:#e8960f; --accent-ink:#1b1204; --accent-soft:rgba(232,150,15,.14); --accent-text:#9a5b00;
+  --volt:#0f8f88; --volt-soft:rgba(15,143,136,.12);
+  --ok:#1d8a5a; --ok-soft:rgba(29,138,90,.12);
+  --warn:#9a6700; --warn-soft:rgba(214,150,20,.16);
+  --bad:#c93636; --bad-soft:rgba(201,54,54,.11);
+  --info:#2d5fd3; --info-soft:rgba(45,95,211,.1);
+  --shadow:0 12px 40px rgba(20,35,45,.16); color-scheme:light;}}
+:root[data-theme="light"]{
+  --bg:#f3f5f6; --panel:#ffffff; --panel-2:#eef2f4; --line:#d9e1e6; --line-2:#c7d2d9;
+  --fg:#111a20; --muted:#55666f; --faint:#8395a0;
+  --accent:#e8960f; --accent-ink:#1b1204; --accent-soft:rgba(232,150,15,.14); --accent-text:#9a5b00;
+  --volt:#0f8f88; --volt-soft:rgba(15,143,136,.12);
+  --ok:#1d8a5a; --ok-soft:rgba(29,138,90,.12);
+  --warn:#9a6700; --warn-soft:rgba(214,150,20,.16);
+  --bad:#c93636; --bad-soft:rgba(201,54,54,.11);
+  --info:#2d5fd3; --info-soft:rgba(45,95,211,.1);
+  --shadow:0 12px 40px rgba(20,35,45,.16); color-scheme:light;}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:14px/1.5 var(--f-body);-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font:inherit;color:inherit}
+a{color:var(--accent-text)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.num,td.n,.mono{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;letter-spacing:-.01em}
+svg.i{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+/* shell */
+.app{display:grid;grid-template-columns:252px minmax(0,1fr);min-height:100%}
+.side{position:sticky;top:0;height:100vh;overflow-y:auto;background:var(--panel);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:14px 12px calc(14px + env(safe-area-inset-bottom,0px)) max(12px,env(safe-area-inset-left,0px))}
+.brand{display:flex;align-items:center;gap:10px;padding:4px 6px 14px;border-bottom:1px solid var(--line);margin-bottom:10px}
+.mark{width:38px;height:38px;border-radius:9px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font:800 13px/1 var(--f-display);letter-spacing:-.02em;position:relative}
+.mark svg{position:absolute;right:-4px;bottom:-4px;width:16px;height:16px;fill:var(--accent);stroke:var(--panel);stroke-width:1.6}
+.brand b{font:700 15px/1.1 var(--f-display);display:flex;gap:6px;align-items:center}
+.brand small{color:var(--muted);font-size:11.5px}
+.tag-beta{font:600 9.5px/1 var(--f-body);letter-spacing:.06em;background:var(--accent-soft);color:var(--accent-text);padding:3px 5px;border-radius:4px}
+.nav{display:flex;flex-direction:column;gap:1px}
+.nav .grp{font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);padding:12px 10px 4px}
+.nav a{display:flex;align-items:center;gap:11px;padding:8px 10px;border-radius:8px;color:var(--fg);text-decoration:none;opacity:.86}
+.nav a:hover{background:var(--panel-2);opacity:1}
+.nav a.on{background:var(--accent-soft);color:var(--accent-text);opacity:1;font-weight:600}
+.nav a .cnt{margin-left:auto;font:500 11px var(--f-mono);color:var(--muted)}
+.side-foot{margin-top:auto;padding-top:12px}
+.side-foot .box{border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:12px;color:var(--muted);display:grid;gap:4px}
+.main{min-width:0;display:flex;flex-direction:column}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding-block:10px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:30;background:var(--bg)}
+.crumb{min-width:0}
+.crumb small{display:block;color:var(--muted);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+.crumb h1{font-size:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top .sp{flex:1}
+.gs{position:relative;width:min(380px,40vw)}
+.gs input{width:100%;padding:8px 12px 8px 34px;background:var(--panel);border:1px solid var(--line);border-radius:9px}
+.gs input#gsearch{padding-left:34px}
+.gs svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--muted)}
+.drop{position:absolute;right:0;top:calc(100% + 6px);width:min(420px,92vw);background:var(--panel);border:1px solid var(--line-2);border-radius:12px;box-shadow:var(--shadow);max-height:60vh;overflow:auto;z-index:40;padding:6px}
+.drop .it{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border-radius:8px;cursor:pointer;width:100%;text-align:left;background:none;border:0}
+.drop .it:hover{background:var(--panel-2)}
+.drop .it small{color:var(--muted);display:block}
+.drop .empty{padding:14px;color:var(--muted)}
+.iconbtn{position:relative;display:grid;place-items:center;width:36px;height:36px;border-radius:9px;border:1px solid var(--line);background:var(--panel);cursor:pointer}
+.iconbtn:hover{border-color:var(--line-2)}
+.iconbtn .dot{position:absolute;top:-5px;right:-5px;min-width:18px;height:18px;border-radius:9px;background:var(--bad);color:#fff;font:600 10.5px/18px var(--f-mono);padding:0 5px}
+.menu-btn{display:none}
+.content{padding-block:22px 60px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));width:100%;max-width:1480px;display:grid;grid-template-columns:minmax(0,1fr);gap:18px;align-content:start}
+.content>*{min-width:0}
+.demo-band{display:flex;gap:10px;align-items:center;flex-wrap:wrap;border:1px dashed var(--line-2);border-radius:10px;padding:8px 12px;font-size:12.5px;color:var(--muted)}
+
+/* page head */
+.ph{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.ph .t{flex:1;min-width:220px}
+.ph h2{font-size:22px}
+.ph p{margin:2px 0 0;color:var(--muted)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:8px 13px;border-radius:9px;border:1px solid var(--line-2);background:var(--panel);cursor:pointer;font-weight:500;white-space:nowrap;text-decoration:none;color:var(--fg)}
+.btn:hover{background:var(--panel-2)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);font-weight:600}
+.btn.pri:hover{filter:brightness(1.06)}
+.btn.danger{color:var(--bad);border-color:color-mix(in srgb,var(--bad) 45%,var(--line))}
+.btn.danger:hover{background:var(--bad-soft)}
+.btn.wa{color:var(--ok);border-color:color-mix(in srgb,var(--ok) 45%,var(--line))}
+.btn.sm{padding:5px 9px;font-size:12.5px;border-radius:7px;gap:5px}
+.btn.sm svg.i{width:15px;height:15px}
+.btn.ic{padding:6px;border-radius:7px}
+.btn[disabled]{opacity:.45;pointer-events:none}
+
+/* cards & kpis */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px;min-width:0}
+.card>h3{font-size:14.5px;margin-bottom:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.card>h3 .sp{flex:1}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:grid;gap:4px;min-width:0}
+.kpi .l{color:var(--muted);font-size:12.5px;display:flex;justify-content:space-between;gap:8px}
+.kpi .v{font:600 clamp(18px,1.55vw,24px)/1.15 var(--f-mono);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.kpi .s{font-size:12px;color:var(--muted)}
+.kpi.k-ok{border-color:color-mix(in srgb,var(--ok) 40%,var(--line))}.kpi.k-ok .v{color:var(--ok)}
+.kpi.k-warn{border-color:color-mix(in srgb,var(--warn) 40%,var(--line))}.kpi.k-warn .v{color:var(--warn)}
+.kpi.k-bad{border-color:color-mix(in srgb,var(--bad) 40%,var(--line))}.kpi.k-bad .v{color:var(--bad)}
+.kpi.k-acc .v{color:var(--accent-text)}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+.grid-side{display:grid;grid-template-columns:minmax(300px,380px) minmax(0,1fr);gap:16px;align-items:start}
+
+/* pills */
+.pill{display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:999px;font-size:11.5px;font-weight:600;white-space:nowrap;background:var(--panel-2);color:var(--muted);border:1px solid transparent}
+.p-ok{background:var(--ok-soft);color:var(--ok)}.p-warn{background:var(--warn-soft);color:var(--warn)}.p-bad{background:var(--bad-soft);color:var(--bad)}.p-info{background:var(--info-soft);color:var(--info)}.p-acc{background:var(--accent-soft);color:var(--accent-text)}.p-volt{background:var(--volt-soft);color:var(--volt)}
+.svc{display:inline-flex;align-items:center;gap:6px;font-size:12px;white-space:nowrap;color:var(--fg)}
+.svc i{width:8px;height:8px;border-radius:2px;display:inline-block;flex:none}
+
+/* tables */
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
+table{width:100%;border-collapse:collapse;min-width:760px}
+th{text-align:left;font:600 10.5px var(--f-body);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:10px 12px;border-bottom:1px solid var(--line);background:var(--panel-2);white-space:nowrap}
+td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+tbody tr:hover td{background:color-mix(in srgb,var(--panel-2) 55%,transparent)}
+td small,.sub{display:block;color:var(--muted);font-size:12px}
+td.act{white-space:nowrap;text-align:right}
+td.act .row{justify-content:flex-end;flex-wrap:nowrap;gap:5px}
+td.empty{text-align:center;color:var(--muted);padding:30px}
+tr.done td{opacity:.6}
+tr.done td .tt{text-decoration:line-through}
+
+/* forms */
+.fg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.fg .s2{grid-column:span 2}
+.fld{display:grid;gap:5px;min-width:0}
+.fld>span{font-size:12.5px;color:var(--muted);font-weight:500}
+input[type=text],input[type=number],input[type=date],input[type=time],input[type=tel],input[type=email],input[type=search],select,textarea{width:100%;padding:8px 10px;background:var(--bg);border:1px solid var(--line-2);border-radius:8px;min-width:0}
+textarea{resize:vertical;min-height:84px}
+input[type=color]{width:100%;height:38px;border:1px solid var(--line-2);border-radius:8px;background:var(--bg);padding:3px}
+input[type=checkbox]{accent-color:var(--accent);width:16px;height:16px}
+.filters{display:grid;grid-template-columns:2fr repeat(3,minmax(0,1fr));gap:12px;align-items:end}
+.hint{font-size:12px;color:var(--muted)}
+.sec-t{font:600 11px var(--f-body);letter-spacing:.09em;text-transform:uppercase;color:var(--muted);margin:6px 0 -2px;grid-column:1/-1;border-top:1px solid var(--line);padding-top:12px}
+
+/* progress */
+.bar{height:6px;border-radius:3px;background:var(--panel-2);overflow:hidden;min-width:70px}
+.bar>i{display:block;height:100%;background:var(--volt);border-radius:3px}
+.prog{display:grid;gap:4px;min-width:90px}
+.prog b{font:500 12.5px var(--f-mono)}
+
+/* kanban */
+.kan{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(250px,1fr);gap:12px;overflow-x:auto;padding-bottom:8px;align-items:start}
+.col{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px;display:grid;gap:8px;align-content:start;min-height:220px}
+.col.over{border-color:var(--accent);background:var(--accent-soft)}
+.col-h{display:flex;gap:8px;align-items:flex-start;padding:2px 2px 6px;border-bottom:1px solid var(--line)}
+.col-h b{font:600 13.5px var(--f-display);display:block}
+.col-h small{color:var(--muted);font-size:11.5px;line-height:1.35;display:block}
+.col-h .cnt{margin-left:auto;font:600 11.5px var(--f-mono);background:var(--panel-2);border-radius:6px;padding:2px 7px}
+.col-h .tot{font:500 11px var(--f-mono);color:var(--muted)}
+.kc{background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:10px;display:grid;gap:6px;cursor:grab}
+.kc:active{cursor:grabbing}
+.kc .h{display:flex;gap:6px;align-items:flex-start}
+.kc .h b{flex:1;font-weight:600;line-height:1.3}
+.kc .meta{display:flex;flex-wrap:wrap;gap:4px}
+.kc .meta span{font-size:11px;border:1px solid var(--line-2);border-radius:5px;padding:1px 6px;color:var(--muted)}
+.kc .nx{font-size:11.5px;color:var(--muted)}
+.kc .nx.late{color:var(--bad)}
+.col .none{border:1px dashed var(--line-2);border-radius:10px;padding:18px;text-align:center;color:var(--faint);font-size:12.5px}
+
+/* calendar */
+.cal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border:1px solid var(--line);border-radius:12px;overflow:hidden;background:var(--line);gap:1px}
+.cal .dh{background:var(--panel-2);text-align:center;font:600 10.5px var(--f-body);letter-spacing:.08em;color:var(--muted);padding:8px 0}
+.cal .d{background:var(--panel);min-height:108px;padding:6px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.cal .d.out{background:var(--bg)}
+.cal .d.out .dn{color:var(--faint)}
+.cal .d.today{box-shadow:inset 0 0 0 2px var(--accent)}
+.cal .d .dt{display:flex;justify-content:space-between;align-items:center}
+.cal .dn{font:500 12px var(--f-mono)}
+.cal .add{border:0;background:none;color:var(--muted);cursor:pointer;padding:0 3px;font-size:16px;line-height:1}
+.ev{border-left:3px solid var(--volt);background:var(--panel-2);border-radius:5px;padding:3px 6px;font-size:11.5px;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:left;border-top:0;border-right:0;border-bottom:0;width:100%}
+.ev b{font-family:var(--f-mono);font-weight:500}
+.ev.cancel{text-decoration:line-through;opacity:.6}
+
+/* bars chart */
+.hb{display:grid;gap:9px}
+.hb .r{display:grid;grid-template-columns:150px minmax(0,1fr) auto;gap:10px;align-items:center;font-size:12.5px}
+.hb .r .tr{height:12px;background:var(--panel-2);border-radius:3px;overflow:hidden}
+.hb .r .tr i{display:block;height:100%;border-radius:3px}
+.hb .r .vv{font:500 12px var(--f-mono);color:var(--fg);min-width:70px;text-align:right}
+.vb{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:10px;align-items:end;height:200px;padding-top:16px;border-bottom:1px solid var(--line-2)}
+.vb .c{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;gap:4px;min-width:0}
+.vb .c i{width:100%;max-width:44px;background:var(--volt);border-radius:4px 4px 0 0;min-height:2px}
+.vb .c i.pend{background:color-mix(in srgb,var(--accent) 70%,transparent)}
+.vb .c span{font:500 10.5px var(--f-mono);color:var(--muted);white-space:nowrap}
+.vlab{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;gap:10px;font:500 11px var(--f-mono);color:var(--muted);text-align:center;padding-top:6px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+
+/* lists */
+.lst{display:grid;gap:2px}
+.lst .li{display:flex;gap:10px;align-items:center;padding:8px 6px;border-bottom:1px solid var(--line);min-width:0}
+.lst .li:last-child{border-bottom:0}
+.lst .li .tx{flex:1;min-width:0}
+.lst .li .tx b{font-weight:600;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lst .li .tx small{color:var(--muted);font-size:12px}
+.lst .empty{color:var(--muted);padding:12px 6px}
+.sev{width:4px;align-self:stretch;border-radius:2px;background:var(--line-2);flex:none}
+.sev.bad{background:var(--bad)}.sev.warn{background:var(--warn)}.sev.info{background:var(--info)}.sev.ok{background:var(--ok)}
+
+/* modal */
+.ov{position:fixed;inset:0;background:rgba(5,9,12,.62);z-index:100;display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:max(24px,env(safe-area-inset-top,0px)) max(12px,env(safe-area-inset-right,0px)) 24px max(12px,env(safe-area-inset-left,0px))}
+.md{background:var(--panel);border:1px solid var(--line-2);border-radius:14px;box-shadow:var(--shadow);width:min(720px,100%);display:flex;flex-direction:column;margin:auto 0}
+.md.wide{width:min(1040px,100%)}
+.md-h{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.md-h h3{flex:1;font-size:16px}
+.md-b{padding:16px;display:grid;gap:14px}
+.md-f{display:flex;gap:8px;justify-content:flex-end;padding:12px 16px;border-top:1px solid var(--line);flex-wrap:wrap}
+.toast{position:fixed;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:200;background:var(--fg);color:var(--bg);padding:10px 14px;border-radius:10px;font-weight:500;box-shadow:var(--shadow);max-width:calc(100vw - 32px)}
+
+/* itens orcamento */
+.items{display:grid;gap:6px}
+.items .ir{display:grid;grid-template-columns:minmax(0,3fr) 70px 64px 120px 110px 34px;gap:6px;align-items:center}
+.items .ir.h{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.07em}
+.items .ir .tot{font:500 12.5px var(--f-mono);text-align:right}
+.calc{border:1px solid color-mix(in srgb,var(--accent) 35%,var(--line));background:var(--accent-soft);border-radius:12px;padding:14px;display:grid;gap:12px}
+.calc h4{margin:0;font:600 13.5px var(--f-display);display:flex;gap:8px;align-items:center}
+.calc-out{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}
+.calc-out div{background:var(--panel);border-radius:8px;padding:8px 10px}
+.calc-out small{display:block;color:var(--muted);font-size:11.5px}
+.calc-out b{font:600 14px var(--f-mono);overflow-wrap:anywhere}
+.totbox{display:grid;gap:4px;justify-items:end;font-size:13px}
+.totbox b{font:600 20px var(--f-mono)}
+
+/* proposta */
+.doc{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:22px;display:grid;gap:14px;font-size:13.5px}
+.doc .dh2{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:2px solid var(--accent);padding-bottom:12px}
+.doc h4{margin:0;font:600 12px var(--f-body);text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.doc table{min-width:0}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line-2);background:var(--panel-2);border-radius:6px;padding:3px 8px;font:500 11.5px var(--f-mono);cursor:pointer}
+.chip:hover{border-color:var(--accent)}
+.preview{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px;white-space:pre-wrap;font-size:13px}
+.wabub{background:var(--ok-soft);border:1px solid color-mix(in srgb,var(--ok) 30%,var(--line));border-radius:10px 10px 10px 2px;padding:10px 12px;white-space:pre-wrap;font-size:13px}
+
+@media (max-width:1100px){.grid-side,.grid2{grid-template-columns:minmax(0,1fr)}.filters{grid-template-columns:repeat(2,minmax(0,1fr))}.filters>:first-child{grid-column:span 2}}
+@media (max-width:860px){
+  .app{grid-template-columns:minmax(0,1fr)}
+  .side{position:fixed;left:0;top:0;bottom:0;z-index:90;width:268px;transform:translateX(-102%);transition:transform .2s;height:auto}
+  .app.open .side{transform:none;box-shadow:var(--shadow)}
+  .scrim{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:80}
+  .menu-btn{display:grid}
+  .gs{width:auto;flex:1}
+  .top .sp{display:none}
+  .crumb{display:none}
+}
+@media (max-width:560px){
+  .fg{grid-template-columns:minmax(0,1fr)}.fg .s2{grid-column:auto}
+  .filters{grid-template-columns:minmax(0,1fr)!important}.filters>:first-child{grid-column:auto}
+  .items .ir{grid-template-columns:minmax(0,1fr) 60px 70px 34px}
+  .items .ir .u,.items .ir .tot{display:none}
+  .hb .r{grid-template-columns:100px minmax(0,1fr) auto}
+  .cal .d{min-height:74px;padding:3px}.ev{font-size:10px;padding:2px 3px}.ev b{display:none}
+  .kpi .v{font-size:20px}
+  .vb,.vlab{gap:3px;grid-auto-columns:minmax(0,1fr)}.vlab{font-size:9.5px}.vb .c span{font-size:8.5px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+<div class="app" id="app">
+  <aside class="side" id="side">
+    <div class="brand">
+      <div class="mark">F3F<svg viewBox="0 0 24 24"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg></div>
+      <div><b>F3F Energy <span class="tag-beta">CRM</span></b><small>Engenharia elétrica e energia</small></div>
+    </div>
+    <nav class="nav" id="nav"></nav>
+    <div class="side-foot"><div class="box" id="sidefoot"></div></div>
+  </aside>
+  <div class="main">
+    <header class="top">
+      <button class="iconbtn menu-btn" data-act="menu" aria-label="Abrir menu"><svg class="i" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+      <div class="crumb"><small>F3F Energy</small><h1 id="ptitle">Dashboard</h1></div>
+      <div class="sp"></div>
+      <div class="gs"><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg><input id="gsearch" type="search" placeholder="Buscar cliente, proposta, projeto..." autocomplete="off" aria-label="Pesquisa global"><div class="drop" id="gdrop" hidden></div></div>
+      <div style="position:relative"><button class="iconbtn" data-act="bell" aria-label="Alertas"><svg class="i" viewBox="0 0 24 24"><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.9 1.9 0 0 0 3.4 0"/></svg><span class="dot" id="bellcnt" hidden></span></button><div class="drop" id="bdrop" hidden></div></div>
+      <button class="iconbtn" data-act="theme" aria-label="Alternar tema"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
+    </header>
+    <main class="content" id="content"></main>
+  </div>
+  <div class="scrim" id="scrim" data-act="menu" hidden></div>
+</div>
+<div id="modal"></div>
+<div class="toast" id="toast" hidden></div>
+
+<script>
+"use strict";
+/* ============================================================
+   F3F Energy CRM — app local (sem servidor). Dados no navegador.
+   ============================================================ */
+const KEY = 'f3f-crm-v1';
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid = () => Math.random().toString(36).slice(2, 10);
+const pad = n => String(n).padStart(2, '0');
+const iso = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+const pd = s => new Date(s + 'T12:00:00');
+const today = () => iso(new Date());
+const addDays = (s, n) => { const d = pd(s); d.setDate(d.getDate() + n); return iso(d); };
+const addMonths = (s, n) => { const d = pd(s); const day = d.getDate(); d.setDate(1); d.setMonth(d.getMonth() + n); const last = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate(); d.setDate(Math.min(day, last)); return iso(d); };
+const diffDays = (a, b) => Math.round((pd(b) - pd(a)) / 864e5);
+const fD = s => s ? s.slice(0, 10).split('-').reverse().join('/') : '—';
+const fDT = s => { if (!s) return '—'; const d = new Date(s); return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()}, ${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+const BRL = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
+const R = v => BRL.format(+v || 0);
+const Rk = v => { v = +v || 0; return Math.abs(v) >= 1e6 ? 'R$ ' + (v / 1e6).toLocaleString('pt-BR', { maximumFractionDigits: 2 }) + ' mi' : Math.abs(v) >= 1e4 ? 'R$ ' + (v / 1e3).toLocaleString('pt-BR', { maximumFractionDigits: 1 }) + ' mil' : R(v); };
+const N = (v, d = 0) => (+v || 0).toLocaleString('pt-BR', { maximumFractionDigits: d, minimumFractionDigits: 0 });
+const sum = (a, f) => a.reduce((s, x) => s + (+f(x) || 0), 0);
+const byId = (arr, id) => arr.find(x => x.id === id);
+const norm = s => String(s ?? '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+const has = (q, ...vals) => !q || vals.some(v => norm(v).includes(norm(q)));
+
+/* ---------- ícones ---------- */
+const IC = {
+  dashboard:'<path d="M12 14l4-4"/><path d="M3.3 19a9 9 0 1 1 17.4 0"/>',
+  captacao:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>',
+  whatsapp:'<path d="M21 12a8.5 8.5 0 0 1-12.6 7.4L3 21l1.6-5.2A8.5 8.5 0 1 1 21 12z"/>',
+  agendas:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+  leads:'<circle cx="9" cy="8" r="4"/><path d="M2 21a7 7 0 0 1 14 0"/><path d="M16 4a4 4 0 0 1 0 8M22 21a7 7 0 0 0-4-6.3"/>',
+  parceiros:'<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+  funil:'<path d="M3 4h18l-7 8v7l-4 2v-9z"/>',
+  reprospeccao:'<path d="M20 11a8 8 0 0 0-14.9-4M4 4v4h4"/><path d="M4 13a8 8 0 0 0 14.9 4M20 20v-4h-4"/>',
+  orcamentos:'<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/>',
+  pagamentos:'<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/>',
+  projetos:'<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 13h18"/>',
+  tarefas:'<path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/>',
+  relatorios:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+  arquivados:'<rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9M10 13h4"/>',
+  modelos:'<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>',
+  configuracoes:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>',
+  backup:'<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/>',
+  sobre:'<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.5"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>', edit:'<path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M14 6l4 4"/>',
+  trash:'<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>', send:'<path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/>',
+  check:'<path d="M5 12l5 5L20 7"/>', x:'<path d="M6 6l12 12M18 6L6 18"/>', left:'<path d="M15 6l-6 6 6 6"/>', right:'<path d="M9 6l6 6-6 6"/>',
+  refresh:'<path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/>', archive:'<rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9M10 13h4"/>',
+  eye:'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>', bolt:'<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>',
+  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+  user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>', upload:'<path d="M12 16V4M6 10l6-6 6 6M4 20h16"/>', download:'<path d="M12 4v12M6 10l6 6 6-6M4 20h16"/>',
+  copy:'<rect x="8" y="8" width="13" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/>', map:'<path d="M12 22s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/>',
+  calc:'<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M8 6h8M8 11h2M14 11h2M8 15h2M14 15h2M8 19h2M14 19h2"/>', play:'<path d="M7 4l13 8-13 8z"/>',
+  ext:'<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>', flag:'<path d="M5 21V4h11l-2 4 2 4H5"/>'
+};
+const ic = (n, cls = 'i') => `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true">${IC[n] || ''}</svg>`;
+
+/* ---------- domínio ---------- */
+const SERV = {
+  solar: { n: 'Energia solar', c: '#f2a627' },
+  redes: { n: 'Redes de distribuição', c: '#7ea6ff' },
+  sub:   { n: 'Subestações', c: '#c58cf0' },
+  gd:    { n: 'Geração distribuída', c: '#3cc4bb' },
+  ml:    { n: 'Mercado Livre', c: '#47c08a' },
+  ee:    { n: 'Eficiência energética', c: '#ee8a5a' }
+};
+const svcTag = k => SERV[k] ? `<span class="svc"><i style="background:${SERV[k].c}"></i>${SERV[k].n}</span>` : '—';
+const svcOpts = () => Object.entries(SERV).map(([k, v]) => [k, v.n]);
+
+const SEGMENTOS = ['Indústria', 'Comércio', 'Agronegócio / Rural', 'Residencial', 'Condomínio', 'Hospital / Saúde', 'Hotelaria', 'Poder público', 'Loteadora / Incorporadora', 'Construtora', 'Cooperativa', 'Educação', 'Outro'];
+const GRUPOS = [['', '—'], ['B1', 'B1 Residencial'], ['B2', 'B2 Rural'], ['B3', 'B3 Comercial/Industrial'], ['A4-verde', 'A4 Verde'], ['A4-azul', 'A4 Azul'], ['A3a', 'A3a'], ['A3', 'A3 (69 kV)'], ['A2', 'A2 (88–138 kV)']];
+const TENSOES = [['', '—'], ['220/127 V', '220/127 V (BT)'], ['380/220 V', '380/220 V (BT)'], ['13,8 kV', '13,8 kV'], ['23,1 kV', '23,1 kV'], ['34,5 kV', '34,5 kV'], ['69 kV', '69 kV'], ['138 kV', '138 kV']];
+const ORIGENS = ['Captação ativa', 'Indicação', 'Parceiro', 'Site / Google', 'Instagram', 'Evento / feira', 'Cliente antigo'];
+
+const ETAPAS = [
+  ['novo', 'Novo', 'Entrou agora, sem abordagem.'],
+  ['contato', 'Contato feito', 'Mensagem ou ligação inicial feita.'],
+  ['qualificado', 'Qualificado', 'Tem conta, demanda e decisor identificados.'],
+  ['visita', 'Visita técnica', 'Levantamento em campo ou análise de faturas.'],
+  ['proposta', 'Proposta enviada', 'Orçamento entregue, aguardando retorno.'],
+  ['negociacao', 'Negociação', 'Ajuste de escopo, prazo ou valor.'],
+  ['ganho', 'Fechado', 'Proposta aprovada, virou projeto.'],
+  ['perdido', 'Perdido', 'Não seguiu. Registre o motivo.']
+];
+const etapaN = k => (ETAPAS.find(e => e[0] === k) || [0, k])[1];
+
+const CST = { captado: ['Captado', ''], preparada: ['Mensagem preparada', 'p-acc'], enviada: ['Mensagem enviada', 'p-warn'], respondeu: ['Respondeu', 'p-info'], qualificado: ['Qualificado', 'p-volt'], lead: ['Virou lead', 'p-ok'], sem_interesse: ['Sem interesse', 'p-bad'] };
+const OST = { rascunho: ['Rascunho', ''], enviado: ['Enviado', 'p-warn'], negociacao: ['Em negociação', 'p-info'], aprovado: ['Aprovado', 'p-ok'], recusado: ['Recusado', 'p-bad'] };
+const PST = { planejamento: ['A iniciar', ''], andamento: ['Em andamento', 'p-info'], concessionaria: ['Aguardando concessionária', 'p-warn'], concluido: ['Concluído', 'p-ok'] };
+const AST = { agendado: ['Agendado', 'p-warn'], confirmado: ['Confirmado', 'p-info'], realizado: ['Realizado', 'p-ok'], cancelado: ['Cancelado', 'p-bad'] };
+const ATIPO = { visita: 'Visita técnica', reuniao: 'Reunião', vistoria: 'Vistoria concessionária', comissionamento: 'Comissionamento', retorno: 'Retorno comercial', medicao: 'Medição / análise de energia' };
+const PTIPOS = ['Integrador solar', 'Distribuidor de equipamentos', 'Comercializadora de energia', 'Construtora', 'Arquitetura', 'Consultor / representante', 'Instaladora', 'Banco / financiamento'];
+const FORMAS = ['pix', 'boleto', 'transferência', 'cartão', 'financiamento'];
+const pill = (map, k) => { const v = map[k] || [k, '']; return `<span class="pill ${v[1]}">${esc(v[0])}</span>`; };
+
+/* etapas-padrão de cada serviço: viram tarefas do projeto */
+const TPL = {
+  solar: [['Visita técnica e levantamento do telhado/solo', 10], ['Projeto elétrico, memorial e ART', 15], ['Solicitação de orçamento de conexão (parecer de acesso)', 10], ['Aprovação da concessionária', 10], ['Compra e entrega de módulos e inversor', 10], ['Instalação mecânica e elétrica', 25], ['Vistoria e troca do medidor bidirecional', 10], ['Comissionamento, monitoramento e entrega', 10]],
+  redes: [['Levantamento topográfico e cadastro da rede', 10], ['Projeto da rede MT/BT e dimensionamento', 20], ['Aprovação do projeto na concessionária', 15], ['ART, licenças e autorizações de passagem', 5], ['Execução da obra (postes, cabos, transformadores)', 30], ['Vistoria, energização e incorporação', 10], ['As-built e entrega da documentação', 10]],
+  sub: [['Levantamento de cargas e definição da demanda', 10], ['Projeto da subestação (abrigada/aérea) e memorial', 20], ['Estudo de proteção e seletividade', 10], ['Aprovação na concessionária', 10], ['Montagem eletromecânica', 25], ['Ensaios, parametrização do relé e comissionamento', 15], ['Ligação, as-built e treinamento NR-10', 10]],
+  gd: [['Análise das UCs beneficiárias e histórico de consumo', 10], ['Dimensionamento da usina e modelo (autoconsumo remoto/compartilhada)', 15], ['Parecer de acesso na distribuidora', 15], ['Licenciamento ambiental e terreno', 10], ['Construção da usina', 30], ['Conexão e vistoria', 10], ['Cadastro do rateio de créditos', 10]],
+  ml: [['Análise de 12 faturas e perfil de carga', 15], ['Estudo de viabilidade ACL x cativo', 15], ['Denúncia do contrato com a distribuidora', 10], ['Cotação e contrato com comercializadora varejista', 20], ['Adequação do SMF (medição) e CCEE', 20], ['Migração efetivada', 10], ['Gestão mensal e relatório de economia', 10]],
+  ee: [['Diagnóstico energético e coleta de faturas', 15], ['Medição de qualidade de energia (analisador)', 15], ['Relatório de oportunidades com payback', 20], ['Correção de fator de potência / banco de capacitores', 20], ['Retrofit de iluminação e motores', 20], ['Medição e verificação (M&V) dos resultados', 10]]
+};
+const PRAZO = { solar: 75, redes: 120, sub: 150, gd: 180, ml: 180, ee: 90 };
+
+/* ---------- dados de demonstração ---------- */
+function seed() {
+  const t = today(), d = n => addDays(t, n), now = Date.now(), dt = n => new Date(now + n * 864e5).toISOString();
+  const L = (o) => Object.assign({ id: uid(), email: '', uf: 'SC', origem: 'Captação ativa', notas: '', arquivado: false, criado: d(-30), atualizado: d(-3) }, o);
+  const leads = [
+    L({ empresa: 'Posto Rota 282', contato: 'Ricardo Alves', telefone: '+55 49 99812-3401', cidade: 'Lages', servico: 'solar', etapa: 'ganho', valor: 248000, consumo: 9800, conta: 9300, distribuidora: 'Celesc', grupo: 'B3', tensao: '380/220 V', demanda: '', proximo: d(12), origem: 'Indicação' }),
+    L({ empresa: 'Laticínio Campo Belo', contato: 'Fernanda Kuhn', telefone: '+55 49 99901-2287', cidade: 'Campo Belo do Sul', servico: 'ml', etapa: 'proposta', valor: 38000, consumo: 185000, conta: 142000, distribuidora: 'Celesc', grupo: 'A4-verde', tensao: '23,1 kV', demanda: 620, proximo: d(-2) }),
+    L({ empresa: 'Cerâmica Coxilha Rica', contato: 'Marcos Pereira', telefone: '+55 49 99877-6610', cidade: 'Lages', servico: 'sub', etapa: 'negociacao', valor: 395000, consumo: 98000, conta: 81000, distribuidora: 'Celesc', grupo: 'A4-azul', tensao: '23,1 kV', demanda: 450, proximo: d(1), origem: 'Parceiro' }),
+    L({ empresa: 'Loteamento Jardim das Araucárias', contato: 'Paulo Wolff', telefone: '+55 49 99134-5520', cidade: 'São Joaquim', servico: 'redes', etapa: 'ganho', valor: 512000, consumo: '', conta: '', distribuidora: 'Celesc', grupo: '', tensao: '23,1 kV', demanda: '', proximo: d(20), origem: 'Parceiro' }),
+    L({ empresa: 'Hospital Tereza Ramos (ala nova)', contato: 'Eng. Juliana Melo', telefone: '+55 49 99223-1199', cidade: 'Lages', servico: 'ee', etapa: 'visita', valor: 86000, consumo: 142000, conta: 118000, distribuidora: 'Celesc', grupo: 'A4-verde', tensao: '13,8 kV', demanda: 540, proximo: d(3), origem: 'Site / Google' }),
+    L({ empresa: 'Fazenda Santa Clara', contato: 'Seu Ademir', telefone: '+55 49 99655-0042', cidade: 'Urupema', servico: 'gd', etapa: 'qualificado', valor: 1120000, consumo: 52000, conta: 46000, distribuidora: 'Celesc', grupo: 'B2', tensao: '380/220 V', demanda: '', proximo: d(5), origem: 'Evento / feira' }),
+    L({ empresa: 'Hotel Serra Alta', contato: 'Camila Duarte', telefone: '+55 49 99710-8890', cidade: 'Urubici', servico: 'solar', etapa: 'contato', valor: 165000, consumo: 6400, conta: 6100, distribuidora: 'Celesc', grupo: 'B3', tensao: '380/220 V', demanda: '', proximo: d(0), origem: 'Instagram' }),
+    L({ empresa: 'Madeireira Pinhal', contato: 'Luís Schmitt', telefone: '+55 49 99588-3021', cidade: 'Otacílio Costa', servico: 'ml', etapa: 'perdido', valor: 42000, consumo: 160000, conta: 125000, distribuidora: 'Celesc', grupo: 'A4-verde', tensao: '23,1 kV', demanda: 480, proximo: '', notas: 'Fechou com outra consultoria. Retomar no fim do contrato (2027).' })
+  ];
+  const [posto, latic, ceram, lote, hosp] = leads;
+  const O = o => Object.assign({ id: uid(), titulo: '', status: 'rascunho', descPct: 0, entradaPct: 30, nParcelas: 2, forma: 'boleto', notas: '', arquivado: false, ultimoRetorno: d(-5), criado: d(-20), itens: [], solar: null, economia: '' }, o);
+  const orcs = [
+    O({ numero: 'ORC-2610', leadId: posto.id, titulo: 'Usina fotovoltaica 74,42 kWp – cobertura do posto', servico: 'solar', status: 'aprovado', validade: d(10), criado: d(-40), entradaPct: 30, nParcelas: 3, forma: 'boleto',
+        itens: [{ d: 'Sistema fotovoltaico 74,42 kWp (122 módulos 610 W + inversor 75 kW)', q: 1, u: 'cj', v: 223260 }, { d: 'Estrutura para telhado metálico', q: 1, u: 'cj', v: 14800 }, { d: 'Projeto, ART e homologação Celesc', q: 1, u: 'sv', v: 9900 }],
+        solar: { consumo: 9800, hsp: 4.6, pr: 0.8, pot: 610, mod: 122, kwp: 74.42, ger: 8216, eco: 6643, payback: 3.1 }, economia: 6643 }),
+    O({ numero: 'ORC-2608', leadId: lote.id, titulo: 'Rede de distribuição MT/BT – 86 lotes', servico: 'redes', status: 'aprovado', validade: d(-5), criado: d(-60), entradaPct: 20, nParcelas: 4, forma: 'transferência',
+        itens: [{ d: 'Projeto executivo da rede (MT 23,1 kV e BT)', q: 1, u: 'sv', v: 46000 }, { d: 'Postes DT 11 m', q: 38, u: 'un', v: 2850 }, { d: 'Transformadores 75 kVA', q: 4, u: 'un', v: 28500 }, { d: 'Cabos, ferragens e iluminação pública', q: 1, u: 'cj', v: 118000 }, { d: 'Mão de obra e energização', q: 1, u: 'sv', v: 125700 }] }),
+    O({ numero: 'ORC-2611', leadId: latic.id, titulo: 'Migração para o Mercado Livre de Energia', servico: 'ml', status: 'enviado', validade: d(20), criado: d(-12), ultimoRetorno: d(-9), entradaPct: 0, nParcelas: 6, forma: 'boleto',
+        itens: [{ d: 'Estudo de viabilidade e modelagem de contratos', q: 1, u: 'sv', v: 12000 }, { d: 'Gestão da migração (denúncia, CCEE, SMF)', q: 1, u: 'sv', v: 18000 }, { d: 'Gestão de energia mensal (12 meses)', q: 12, u: 'mês', v: 680 }], economia: 31200 }),
+    O({ numero: 'ORC-2612', leadId: ceram.id, titulo: 'Subestação abrigada 750 kVA + proteção', servico: 'sub', status: 'negociacao', validade: d(6), criado: d(-18), ultimoRetorno: d(-11), descPct: 3, entradaPct: 40, nParcelas: 3,
+        itens: [{ d: 'Projeto e aprovação na Celesc', q: 1, u: 'sv', v: 28000 }, { d: 'Transformador a seco 750 kVA', q: 1, u: 'un', v: 168000 }, { d: 'Cubículo de média tensão com relé de proteção', q: 1, u: 'cj', v: 132000 }, { d: 'Montagem, ensaios e comissionamento', q: 1, u: 'sv', v: 79000 }] }),
+    O({ numero: 'ORC-2613', leadId: hosp.id, titulo: 'Diagnóstico energético + correção de fator de potência', servico: 'ee', status: 'rascunho', validade: d(30), criado: d(-2), itens: [{ d: 'Diagnóstico energético com analisador (7 dias)', q: 1, u: 'sv', v: 14500 }, { d: 'Banco de capacitores automático 150 kvar', q: 1, u: 'cj', v: 38500 }], economia: 4200 })
+  ];
+  const pags = [];
+  const mk = (o, list) => list.forEach(([desc, val, venc, pago, forma]) => pags.push({ id: uid(), orcId: o.id, desc, valor: val, venc, pagoEm: pago || '', forma: forma || o.forma }));
+  mk(orcs[0], [['Entrada (30%)', 74388, d(-38), d(-37), 'pix'], ['Parcela 2 – entrega dos equipamentos', 57857.33, d(-8), d(-8)], ['Parcela 3 – instalação', 57857.33, d(4)], ['Parcela 4 – comissionamento', 57857.34, d(34)]]);
+  mk(orcs[1], [['Entrada (20%)', 102540, d(-58), d(-57), 'transferência'], ['Medição 1 – projeto aprovado', 102540, d(-27), d(-25)], ['Medição 2 – postes e cabos', 102540, d(-3)], ['Medição 3 – transformadores', 102540, d(27)], ['Medição 4 – energização', 102540, d(57)]]);
+  const P = o => Object.assign({ id: uid(), arquivado: false, notas: '' }, o);
+  const p1 = P({ codigo: 'PRJ-031', nome: 'Usina FV 74,42 kWp – Posto Rota 282', orcId: orcs[0].id, leadId: posto.id, servico: 'solar', valor: 247960, inicio: d(-36), prazo: d(40), status: 'concessionaria', kwp: 74.42 });
+  const p2 = P({ codigo: 'PRJ-030', nome: 'Rede MT/BT – Loteamento Jardim das Araucárias', orcId: orcs[1].id, leadId: lote.id, servico: 'redes', valor: 512700, inicio: d(-55), prazo: d(65), status: 'andamento' });
+  orcs[0].projetoId = p1.id; orcs[1].projetoId = p2.id;
+  const tasks = [];
+  const mkT = (p, doneN, start) => TPL[p.servico].forEach(([titulo, peso], i) => tasks.push({ id: uid(), projetoId: p.id, titulo, desc: '', data: addDays(start, i * 9), hora: '09:00', prio: i === doneN ? 'alta' : 'normal', peso: null, pesoSug: peso, done: i < doneN }));
+  mkT(p1, 3, d(-34)); mkT(p2, 3, d(-50));
+  tasks.push({ id: uid(), projetoId: p1.id, titulo: 'Cobrar retorno do parecer de acesso na Celesc', desc: 'Protocolo em análise há 12 dias.', data: d(-1), hora: '10:00', prio: 'alta', peso: 0, done: false });
+  const contatos = [
+    ['Frigorífico Serra Catarinense', 'Rogério', '+55 49 99831-2210', 'Lages', 'Indústria', 'ml', 'enviada', 1, dt(-9), d(-2)],
+    ['Supermercado Bom Preço', 'Aline', '+55 49 99172-6630', 'Lages', 'Comércio', 'solar', 'respondeu', 1, dt(-4), ''],
+    ['Cooperativa Agro Campos', 'Valdir', '+55 49 99290-4471', 'Campos Novos', 'Cooperativa', 'sub', 'qualificado', 2, dt(-15), ''],
+    ['Condomínio Vale Verde', 'Síndico Márcio', '+55 48 99654-1108', 'Florianópolis', 'Condomínio', 'gd', 'preparada', 0, '', ''],
+    ['Prefeitura de Bocaina do Sul', 'Sec. de Obras', '+55 49 3221-4400', 'Bocaina do Sul', 'Poder público', 'ee', 'captado', 0, '', ''],
+    ['Clínica Vida Plena', 'Dra. Sônia', '+55 49 99417-2290', 'Lages', 'Hospital / Saúde', 'solar', 'captado', 0, '', ''],
+    ['Vinícola Altos de Urubici', 'Gustavo', '+55 49 99733-8120', 'Urubici', 'Agronegócio / Rural', 'solar', 'enviada', 2, dt(-12), d(-5)],
+    ['Metalúrgica Correia Pinto', 'Sandra (compras)', '+55 49 99560-7712', 'Correia Pinto', 'Indústria', 'ee', 'sem_interesse', 3, dt(-40), ''],
+    ['Laticínio Campo Belo', 'Fernanda Kuhn', '+55 49 99901-2287', 'Campo Belo do Sul', 'Indústria', 'ml', 'lead', 1, dt(-25), '']
+  ].map(([empresa, contato, telefone, cidade, segmento, servico, status, tent, ult, prox]) => ({ id: uid(), empresa, contato, telefone, cidade, uf: 'SC', segmento, servico, status, tentativas: tent, ultimoEnvio: ult, proximo: prox, arquivado: false, criado: d(-30) }));
+  const parceiros = [
+    { id: uid(), nome: 'SolarSul Distribuidora', tipo: 'Distribuidor de equipamentos', contato: 'Bruno', telefone: '+55 48 99610-2201', cidade: 'São José', comissao: 0, ultimo: d(-12), notas: 'Kit FV com entrega em 10 dias úteis. Desconto em volume acima de 50 kWp.' },
+    { id: uid(), nome: 'Atlântico Comercializadora', tipo: 'Comercializadora de energia', contato: 'Patrícia', telefone: '+55 47 99288-4410', cidade: 'Joinville', comissao: 4, ultimo: d(-40), notas: 'Varejista habilitada na CCEE. Comissão sobre contrato de 3 anos.' },
+    { id: uid(), nome: 'Construtora Pinheiro', tipo: 'Construtora', contato: 'Eng. Tiago', telefone: '+55 49 99541-7720', cidade: 'Lages', comissao: 5, ultimo: d(-8), notas: 'Indicou o loteamento Jardim das Araucárias.' },
+    { id: uid(), nome: 'Banco Cooperativo Serrano', tipo: 'Banco / financiamento', contato: 'Gerente PJ', telefone: '+55 49 3222-1100', cidade: 'Lages', comissao: 0, ultimo: d(-60), notas: 'Linha verde para FV com carência de 6 meses.' }
+  ];
+  const ag = (titulo, leadId, dd, ini, fim, status, tipo) => ({ id: uid(), titulo, leadId, data: dd, inicio: ini, fim, status, tipo, obs: '' });
+  const agendas = [
+    ag('Visita técnica – medição QEE', hosp.id, d(3), '08:30', '11:30', 'confirmado', 'medicao'),
+    ag('Reunião de negociação – subestação', ceram.id, d(1), '14:00', '15:00', 'agendado', 'reuniao'),
+    ag('Vistoria Celesc – troca de medidor', posto.id, d(9), '09:00', '10:00', 'agendado', 'vistoria'),
+    ag('Retorno proposta Mercado Livre', latic.id, d(0), '16:00', '16:30', 'agendado', 'retorno'),
+    ag('Levantamento topográfico – quadra C', lote.id, d(-6), '07:30', '12:00', 'realizado', 'visita'),
+    ag('Visita técnica – área da usina GD', leads[5].id, d(6), '09:00', '12:00', 'agendado', 'visita')
+  ];
+  const modelos = [
+    { id: uid(), nome: 'Primeiro contato – Energia solar', tipo: 'captacao', texto: 'Olá, {{nome_contato}}! Aqui é da F3F Energy, engenharia elétrica de Lages/SC. Vi que a {{nome_empresa}} atua com {{segmento}} em {{cidade}}.\n\nFazemos usinas solares com projeto, homologação na concessionária e simulação de economia na conta de luz. Posso te mandar uma estimativa sem compromisso? Só preciso de uma conta de energia recente.' },
+    { id: uid(), nome: 'Primeiro contato – Mercado Livre', tipo: 'captacao', texto: 'Olá, {{nome_contato}}! Sou da F3F Energy. Desde 2024 toda unidade do Grupo A (alta tensão) pode migrar para o Mercado Livre de Energia, com economia que costuma ficar entre 20% e 35% na parcela de energia.\n\nSe a {{nome_empresa}} me enviar as últimas 12 faturas, faço o estudo de viabilidade sem custo.' },
+    { id: uid(), nome: 'Primeiro contato – Subestações e redes', tipo: 'captacao', texto: 'Olá, {{nome_contato}}! Aqui é da F3F Energy. Projetamos e executamos subestações, redes de média tensão e aumentos de carga com aprovação na concessionária.\n\nA {{nome_empresa}} tem alguma ampliação ou adequação elétrica prevista para os próximos meses?' },
+    { id: uid(), nome: 'Reprospecção sem resposta', tipo: 'reprospeccao', texto: 'Oi, {{nome_contato}}, tudo bem? Passando para retomar nossa conversa sobre {{servico}} para a {{nome_empresa}}. Se fizer sentido, consigo agendar uma visita técnica rápida ainda esta semana.' },
+    { id: uid(), nome: 'Envio de proposta', tipo: 'orcamento', texto: 'Olá, {{nome_contato}}! Segue a proposta {{numero}} – {{titulo}}.\n\nInvestimento: {{valor}}\nCondição: {{condicao}}\nValidade: {{validade}}\n\nFico à disposição para ajustar o escopo ou tirar dúvidas técnicas.' },
+    { id: uid(), nome: 'Cobrança de retorno da proposta', tipo: 'orcamento', texto: 'Oi, {{nome_contato}}! Conseguiu avaliar a proposta {{numero}} ({{titulo}})? A validade vai até {{validade}}. Posso ajudar com alguma dúvida?' },
+    { id: uid(), nome: 'Lembrete de parcela', tipo: 'cobranca', texto: 'Olá, {{nome_contato}}! Lembrete da parcela "{{parcela}}" da proposta {{numero}}, no valor de {{valor}}, com vencimento em {{vencimento}}. Qualquer dúvida estou à disposição.' }
+  ];
+  return {
+    v: 1, demo: true,
+    cfg: { empresa: 'F3F Energy', cnpj: '', responsavel: 'Equipe F3F', telefone: '', email: '', cidade: 'Lages', uf: 'SC', crea: '', hsp: 4.6, pr: 0.8, pot: 610, custoWp: 3.0, tarifa: 0.95, fioB: 0.10, cadencia: 7, prefixo: 'ORC-', seqOrc: 2614, seqPrj: 32, ultimoBackup: '' },
+    leads, contatos, parceiros, agendas, orcs, pags, projetos: [p1, p2], tarefas: tasks, modelos,
+    wa: { fila: [], modeloId: '', texto: '' }
+  };
+}
+function blank() { const s = seed(); return { v: 1, demo: false, cfg: Object.assign(s.cfg, { seqOrc: 1, seqPrj: 1 }), leads: [], contatos: [], parceiros: [], agendas: [], orcs: [], pags: [], projetos: [], tarefas: [], modelos: s.modelos, wa: { fila: [], modeloId: '', texto: '' } }; }
+
+/* ---------- persistência ---------- */
+let db;
+function load() {
+  try { const raw = localStorage.getItem(KEY); if (raw) { db = JSON.parse(raw); } } catch (e) { db = null; }
+  if (!db || !db.cfg) db = seed();
+  const b = blank();
+  for (const k of Object.keys(b)) if (db[k] == null) db[k] = b[k];
+}
+let saveOk = true;
+function save() { try { localStorage.setItem(KEY, JSON.stringify(db)); saveOk = true; } catch (e) { saveOk = false; } }
+
+/* ---------- cálculos ---------- */
+function orcSub(o) { return sum(o.itens || [], i => (+i.q || 0) * (+i.v || 0)); }
+function orcTotal(o) { return Math.round(orcSub(o) * (1 - (+o.descPct || 0) / 100) * 100) / 100; }
+function pagSt(p) { return p.pagoEm ? 'pago' : (p.venc < today() ? 'vencido' : 'pendente'); }
+function orcPago(o) { return sum(db.pags.filter(p => p.orcId === o.id && p.pagoEm), p => p.valor); }
+function orcVencido(o) { return sum(db.pags.filter(p => p.orcId === o.id && pagSt(p) === 'vencido'), p => p.valor); }
+function cliente(id) { return byId(db.leads, id) || {}; }
+function pesos(pid) {
+  const ts = db.tarefas.filter(t => t.projetoId === pid);
+  const isMan = t => t.peso !== null && t.peso !== '' && t.peso !== undefined;
+  const sug = ts.filter(t => !isMan(t) && t.pesoSug);
+  const M = sum(ts.filter(isMan), t => t.peso);
+  const auto = ts.filter(t => !isMan(t));
+  const sugTot = sum(sug, t => t.pesoSug);
+  const rest = Math.max(0, 100 - M);
+  return ts.map(t => {
+    let w;
+    if (isMan(t)) w = +t.peso;
+    else if (sug.length === auto.length && sugTot > 0) w = rest * t.pesoSug / sugTot;
+    else w = auto.length ? rest / auto.length : 0;
+    return { t, w, man: isMan(t) };
+  });
+}
+function progresso(p) {
+  if (p.status === 'concluido') return 100;
+  const ws = pesos(p.id); const tot = sum(ws, x => x.w);
+  if (!tot) return 0;
+  return Math.round(sum(ws.filter(x => x.t.done), x => x.w) / tot * 100);
+}
+function calcSolar(consumo, hsp, pr, pot) {
+  consumo = +consumo || 0; hsp = +hsp || db.cfg.hsp; pr = +pr || db.cfg.pr; pot = +pot || db.cfg.pot;
+  if (!consumo) return null;
+  const kwpAlvo = consumo / (hsp * 30 * pr);
+  const mod = Math.ceil(kwpAlvo * 1000 / pot);
+  const kwp = Math.round(mod * pot / 10) / 100;
+  const ger = Math.round(kwp * hsp * 30 * pr);
+  const valor = Math.round(kwp * 1000 * db.cfg.custoWp / 10) * 10;
+  const comp = Math.min(ger, consumo);
+  const eco = Math.round(comp * db.cfg.tarifa * (1 - db.cfg.fioB));
+  const payback = eco ? Math.round(valor / (eco * 12) * 10) / 10 : 0;
+  const inv = Math.max(3, Math.round(kwp / 1.15 / 5) * 5);
+  return { consumo, hsp, pr, pot, mod, kwp, ger, valor, eco, payback, inv };
+}
+function waLink(tel, msg) {
+  let n = String(tel || '').replace(/\D/g, '');
+  if (n && n.length <= 11) n = '55' + n;
+  return `https://wa.me/${n}?text=${encodeURIComponent(msg || '')}`;
+}
+function fill(txt, v) { return String(txt || '').replace(/\{\{\s*(\w+)\s*\}\}/g, (m, k) => v[k] != null && v[k] !== '' ? v[k] : m); }
+function varsContato(c) { return { nome_empresa: c.empresa || '', nome_contato: (c.contato || '').split(' ')[0] || c.empresa || '', cidade: c.cidade || '', uf: c.uf || '', segmento: (c.segmento || 'seu segmento').toLowerCase(), servico: SERV[c.servico] ? SERV[c.servico].n.toLowerCase() : 'energia', empresa: db.cfg.empresa }; }
+function condicao(o) { const e = +o.entradaPct || 0, n = +o.nParcelas || 0; return (e ? `entrada de ${e}% + ` : '') + (n ? `${n}x` : 'à vista') + ` via ${o.forma}`; }
+function varsOrc(o) { const c = cliente(o.leadId); return Object.assign(varsContato(c), { numero: o.numero, titulo: o.titulo, valor: R(orcTotal(o)), validade: fD(o.validade), condicao: condicao(o) }); }
+function modelosDe(tipo) { return db.modelos.filter(m => m.tipo === tipo); }
+function alerts() {
+  const t = today(), out = [];
+  db.tarefas.filter(x => !x.done && x.data && x.data < t).forEach(x => { const p = byId(db.projetos, x.projetoId); if (p && !p.arquivado) out.push({ sev: 'bad', go: 'tarefas', txt: `Tarefa vencida: ${x.titulo}`, sub: `${p.codigo} · prazo ${fD(x.data)}` }); });
+  db.pags.filter(p => pagSt(p) === 'vencido').forEach(p => { const o = byId(db.orcs, p.orcId); out.push({ sev: 'bad', go: 'pagamentos', txt: `Parcela vencida: ${R(p.valor)}`, sub: `${o ? o.numero + ' · ' + (cliente(o.leadId).empresa || '') : ''} · venceu ${fD(p.venc)}` }); });
+  db.leads.filter(l => !l.arquivado && l.proximo && l.proximo <= t && !['ganho', 'perdido'].includes(l.etapa)).forEach(l => out.push({ sev: l.proximo < t ? 'warn' : 'info', go: 'leads', txt: `Retornar para ${l.empresa}`, sub: `Próximo contato ${fD(l.proximo)} · ${etapaN(l.etapa)}` }));
+  db.orcs.filter(o => !o.arquivado && ['enviado', 'negociacao'].includes(o.status) && o.validade && diffDays(t, o.validade) <= 7).forEach(o => out.push({ sev: 'warn', go: 'orcamentos', txt: `Proposta ${o.numero} vence em ${Math.max(0, diffDays(t, o.validade))} dia(s)`, sub: cliente(o.leadId).empresa || '' }));
+  db.agendas.filter(a => a.data === t && a.status !== 'cancelado' && a.status !== 'realizado').forEach(a => out.push({ sev: 'info', go: 'agendas', txt: `Hoje ${a.inicio}: ${a.titulo}`, sub: cliente(a.leadId).empresa || ATIPO[a.tipo] || '' }));
+  return out;
+}
+
+/* ---------- UI helpers ---------- */
+const UI = {};
+const ui = (k, d) => (UI[k] === undefined ? d : UI[k]);
+function toast(msg) { const t = $('#toast'); t.textContent = msg; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => (t.hidden = true), 2600); }
+const opt = (list, val) => list.map(o => { const [v, l] = Array.isArray(o) ? o : [o, o]; return `<option value="${esc(v)}"${String(v) === String(val ?? '') ? ' selected' : ''}>${esc(l)}</option>`; }).join('');
+const leadOpts = (val, blankLbl = 'Selecione o cliente') => opt([['', blankLbl], ...db.leads.filter(l => !l.arquivado || l.id === val).map(l => [l.id, l.empresa])], val);
+
+function field(f, data) {
+  const v = data[f.k] ?? f.def ?? '';
+  const id = 'f_' + f.k;
+  let inp;
+  if (f.type === 'select') inp = `<select id="${id}">${opt(typeof f.opts === 'function' ? f.opts() : f.opts, v)}</select>`;
+  else if (f.type === 'textarea') inp = `<textarea id="${id}" placeholder="${esc(f.ph || '')}">${esc(v)}</textarea>`;
+  else inp = `<input id="${id}" type="${f.type || 'text'}" value="${esc(v)}" placeholder="${esc(f.ph || '')}"${f.step ? ` step="${f.step}"` : ''}${f.list ? ` list="${id}_l"` : ''}>${f.list ? `<datalist id="${id}_l">${f.list.map(x => `<option value="${esc(x)}">`).join('')}</datalist>` : ''}`;
+  if (f.sec) return `<div class="sec-t">${esc(f.sec)}</div>`;
+  return `<label class="fld${f.span ? ' s2' : ''}"><span>${esc(f.label)}${f.req ? ' *' : ''}</span>${inp}${f.hint ? `<small class="hint">${esc(f.hint)}</small>` : ''}</label>`;
+}
+function readForm(fields) {
+  const o = {};
+  for (const f of fields) { if (f.sec) continue; const el = $('#f_' + f.k); if (!el) continue; let v = el.value; if (f.type === 'number') v = v === '' ? '' : +v; o[f.k] = typeof v === 'string' ? v.trim() : v; }
+  return o;
+}
+let modalSave = null;
+function openModal(title, body, { foot, wide, onSave, saveLbl = 'Salvar' } = {}) {
+  modalSave = onSave || null;
+  $('#modal').innerHTML = `<div class="ov" data-act="ovclose"><div class="md${wide ? ' wide' : ''}" role="dialog" aria-modal="true" aria-label="${esc(title)}">
+    <div class="md-h"><h3>${esc(title)}</h3><button class="btn sm" data-act="mclose">${ic('x')}Fechar</button></div>
+    <div class="md-b">${body}</div>
+    ${foot !== undefined ? (foot ? `<div class="md-f">${foot}</div>` : '') : `<div class="md-f"><button class="btn" data-act="mclose">Cancelar</button><button class="btn pri" data-act="msave">${ic('check')}${esc(saveLbl)}</button></div>`}
+  </div></div>`;
+  const first = $('#modal input:not([type=checkbox]), #modal select, #modal textarea'); if (first) first.focus();
+}
+function closeModal() { $('#modal').innerHTML = ''; modalSave = null; }
+function formModal(title, fields, data, onSave, opts = {}) {
+  openModal(title, `<div class="fg">${fields.map(f => field(f, data || {})).join('')}</div>${opts.extra || ''}`, Object.assign({}, opts, {
+    onSave: () => {
+      const o = readForm(fields);
+      const miss = fields.find(f => f.req && (o[f.k] === '' || o[f.k] == null));
+      if (miss) { toast(`Preencha o campo "${miss.label}".`); $('#f_' + miss.k).focus(); return; }
+      if (onSave(o) !== false) { save(); closeModal(); render(); }
+    }
+  }));
+}
+function confirmBox(msg, fn, lbl = 'Excluir') {
+  openModal('Confirmar', `<p style="margin:0">${esc(msg)}</p>`, { foot: `<button class="btn" data-act="mclose">Cancelar</button><button class="btn danger" data-act="msave">${ic('trash')}${esc(lbl)}</button>`, onSave: () => { fn(); save(); closeModal(); render(); } });
+}
+function offerFile(name, text, mime, title) {
+  let href = '';
+  try { href = URL.createObjectURL(new Blob([text], { type: mime })); } catch (e) {}
+  openModal(title || 'Exportar', `<p class="hint" style="margin:0">Baixe o arquivo <b>${esc(name)}</b>. Se o download estiver bloqueado neste ambiente, copie o conteúdo abaixo e salve num arquivo com esse nome.</p>
+    <textarea id="exptxt" rows="10" readonly class="mono" style="font-size:12px">${esc(text)}</textarea>`,
+    { foot: `<button class="btn" data-act="copyexp">${ic('copy')}Copiar</button>${href ? `<a class="btn pri" href="${href}" download="${esc(name)}">${ic('download')}Baixar arquivo</a>` : ''}` });
+}
+function copyText(txt, el) {
+  const fb = () => { if (el) { el.focus(); el.select(); } toast('Selecione e copie com Ctrl+C.'); };
+  try { navigator.clipboard.writeText(txt).then(() => toast('Copiado.'), fb); } catch (e) { fb(); }
+}
+const kpi = (l, v, s = '', cls = '') => `<div class="kpi ${cls}"><div class="l"><span>${l}</span></div><div class="v">${v}</div>${s ? `<div class="s">${s}</div>` : ''}</div>`;
+const prog = v => `<div class="prog"><b>${v}%</b><div class="bar"><i style="width:${v}%"></i></div></div>`;
+const btn = (act, label, icon, cls = '', data = '') => `<button class="btn sm ${cls}" data-act="${act}" ${data}>${icon ? ic(icon) : ''}${label}</button>`;
+const ibtn = (act, icon, title, cls = '', data = '') => `<button class="btn ic ${cls}" data-act="${act}" ${data} title="${esc(title)}" aria-label="${esc(title)}">${ic(icon)}</button>`;
+const waA = (href, label = 'WhatsApp', data = '') => `<a class="btn sm wa" href="${esc(href)}" target="_blank" rel="noopener" ${data}>${ic('whatsapp')}${label}</a>`;
+
+/* ============================================================
+   PÁGINAS
+   ============================================================ */
+const NAV = [
+  ['Visão geral', [['dashboard', 'Dashboard']]],
+  ['Comercial', [['captacao', 'Captação'], ['whatsapp', 'WhatsApp'], ['agendas', 'Agendas'], ['leads', 'Leads e clientes'], ['parceiros', 'Parceiros'], ['funil', 'Funil comercial'], ['reprospeccao', 'Reprospecção']]],
+  ['Entrega e financeiro', [['orcamentos', 'Orçamentos'], ['pagamentos', 'Pagamentos'], ['projetos', 'Projetos'], ['tarefas', 'Tarefas']]],
+  ['Gestão', [['relatorios', 'Relatórios'], ['arquivados', 'Arquivados'], ['modelos', 'Modelos de mensagem'], ['configuracoes', 'Configurações'], ['backup', 'Backup'], ['sobre', 'Sobre']]]
+];
+const TITLES = Object.fromEntries(NAV.flatMap(g => g[1]));
+const P = {};
+
+/* ---------- Dashboard ---------- */
+P.dashboard = () => {
+  const t = today(), mes = t.slice(0, 7);
+  const leadsAt = db.leads.filter(l => !l.arquivado && !['ganho', 'perdido'].includes(l.etapa));
+  const abertos = db.orcs.filter(o => !o.arquivado && ['enviado', 'negociacao', 'rascunho'].includes(o.status));
+  const prjAt = db.projetos.filter(p => !p.arquivado && p.status !== 'concluido');
+  const kwp = sum(prjAt.filter(p => ['solar', 'gd'].includes(p.servico)), p => p.kwp);
+  const recMes = sum(db.pags.filter(p => p.pagoEm && p.pagoEm.slice(0, 7) === mes), p => p.valor);
+  const venc = db.pags.filter(p => pagSt(p) === 'vencido');
+  const tv = db.tarefas.filter(x => !x.done && x.data && x.data < t && byId(db.projetos, x.projetoId));
+  const pipe = Object.keys(SERV).map(k => ({ k, v: sum(leadsAt.filter(l => l.servico === k), l => l.valor), n: leadsAt.filter(l => l.servico === k).length }));
+  const mx = Math.max(1, ...pipe.map(x => x.v));
+  const prox = db.agendas.filter(a => a.data >= t && a.status !== 'cancelado').sort((a, b) => (a.data + a.inicio).localeCompare(b.data + b.inicio)).slice(0, 6);
+  const al = alerts();
+  return `
+  <div class="ph"><div class="t"><h2>Resumo operacional</h2><p>${new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</p></div>
+    <div class="row"><button class="btn" data-act="newLead">${ic('plus')}Novo lead</button><button class="btn pri" data-act="newOrc">${ic('orcamentos')}Novo orçamento</button></div></div>
+  <div class="kpis">
+    ${kpi('Leads em atendimento', N(leadsAt.length), `${Rk(sum(leadsAt, l => l.valor))} em potencial`)}
+    ${kpi('Propostas abertas', N(abertos.length), Rk(sum(abertos, orcTotal)) + ' em análise', 'k-acc')}
+    ${kpi('Projetos ativos', N(prjAt.length), kwp ? `${N(kwp, 2)} kWp em execução` : 'Em execução')}
+    ${kpi('Recebido no mês', Rk(recMes), `${db.pags.filter(p => p.pagoEm && p.pagoEm.slice(0, 7) === mes).length} parcela(s)`, 'k-ok')}
+    ${kpi('Parcelas vencidas', Rk(sum(venc, p => p.valor)), `${venc.length} parcela(s)`, venc.length ? 'k-bad' : '')}
+    ${kpi('Tarefas vencidas', N(tv.length), 'Em projetos ativos', tv.length ? 'k-warn' : '')}
+  </div>
+  <div class="grid2">
+    <div class="card"><h3>Precisa de atenção <span class="sp"></span><span class="pill ${al.length ? 'p-warn' : 'p-ok'}">${al.length}</span></h3>
+      <div class="lst">${al.slice(0, 8).map(a => `<div class="li"><span class="sev ${a.sev}"></span><div class="tx"><b>${esc(a.txt)}</b><small>${esc(a.sub)}</small></div><button class="btn sm" data-act="go" data-p="${a.go}">Abrir</button></div>`).join('') || '<div class="empty">Nada pendente. Bom trabalho.</div>'}</div></div>
+    <div class="card"><h3>Pipeline por serviço <span class="sp"></span><span class="hint">valor estimado dos leads abertos</span></h3>
+      <div class="hb">${pipe.map(x => `<div class="r"><span>${svcTag(x.k)}</span><div class="tr"><i style="width:${x.v / mx * 100}%;background:${SERV[x.k].c}"></i></div><span class="vv">${Rk(x.v)} <small style="color:var(--muted)">(${x.n})</small></span></div>`).join('')}</div></div>
+  </div>
+  <div class="grid2">
+    <div class="card"><h3>Próximos compromissos <span class="sp"></span>${btn('go', 'Agenda', 'agendas', '', 'data-p="agendas"')}</h3>
+      <div class="lst">${prox.map(a => `<div class="li"><span class="sev info"></span><div class="tx"><b>${esc(a.titulo)}</b><small>${fD(a.data)} · ${esc(a.inicio)}–${esc(a.fim)} · ${esc(cliente(a.leadId).empresa || ATIPO[a.tipo])}</small></div>${pill(AST, a.status)}</div>`).join('') || '<div class="empty">Sem compromissos futuros.</div>'}</div></div>
+    <div class="card"><h3>Projetos em execução <span class="sp"></span>${btn('go', 'Projetos', 'projetos', '', 'data-p="projetos"')}</h3>
+      <div class="lst">${prjAt.map(p => `<div class="li"><div class="tx"><b>${esc(p.nome)}</b><small>${esc(p.codigo)} · prazo ${fD(p.prazo)} · ${PST[p.status][0]}</small></div><div style="width:120px">${prog(progresso(p))}</div></div>`).join('') || '<div class="empty">Nenhum projeto ativo. Aprove um orçamento para gerar o primeiro.</div>'}</div></div>
+  </div>`;
+};
+
+/* ---------- Captação ---------- */
+P.captacao = () => {
+  const cs = db.contatos.filter(c => !c.arquivado), n = cs.length || 1;
+  const env = cs.filter(c => c.tentativas > 0).length, resp = cs.filter(c => ['respondeu', 'qualificado', 'lead'].includes(c.status)).length, conv = cs.filter(c => c.status === 'lead').length;
+  const pct = v => Math.round(v / n * 100) + '%';
+  return `
+  <div class="ph"><div class="t"><h2>Captação de contatos</h2><p>Contatos frios ficam aqui. Viram lead quando respondem ou são qualificados.</p></div>
+    <div class="row"><button class="btn" data-act="importCsv">${ic('upload')}Importar planilha CSV</button><button class="btn" data-act="csvModelo">${ic('download')}Modelo CSV</button><button class="btn pri" data-act="newContato">${ic('plus')}Adicionar contato</button></div></div>
+  <div class="kpis">${kpi('Contatos captados', N(cs.length))}${kpi('Mensagens enviadas', N(env), pct(env) + ' da base')}${kpi('Responderam', N(resp), pct(resp) + ' da base', 'k-acc')}${kpi('Convertidos em lead', N(conv), pct(conv) + ' da base', 'k-ok')}</div>
+  <div class="card"><h3>${ic('map')} Buscar no Google Maps</h3>
+    <div class="filters" style="grid-template-columns:2fr 2fr 80px auto">
+      <label class="fld"><span>Nicho</span><input id="gm_n" type="text" value="${esc(ui('gm_n', 'indústria'))}" placeholder="Ex.: frigorífico, supermercado, hotel" data-k="gm_n"></label>
+      <label class="fld"><span>Cidade</span><input id="gm_c" type="text" value="${esc(ui('gm_c', db.cfg.cidade))}" data-k="gm_c"></label>
+      <label class="fld"><span>UF</span><input id="gm_u" type="text" value="${esc(ui('gm_u', db.cfg.uf))}" data-k="gm_u"></label>
+      <a class="btn pri" id="gm_go" target="_blank" rel="noopener" href="#">${ic('ext')}Abrir pesquisa</a>
+    </div>
+    <p class="hint" style="margin:10px 0 0">Abre a pesquisa no Maps em outra aba. Copie os contatos interessantes e cole em "Importar planilha CSV" ou cadastre manualmente.</p></div>
+  <div class="card"><div class="filters">
+    <label class="fld"><span>Busca</span><input type="search" id="c_q" data-f="c_q" value="${esc(ui('c_q', ''))}" placeholder="Empresa, contato ou telefone"></label>
+    <label class="fld"><span>Cidade</span><select id="c_cid" data-f="c_cid">${opt([['', 'Todas'], ...[...new Set(cs.map(c => c.cidade))].sort()], ui('c_cid', ''))}</select></label>
+    <label class="fld"><span>Interesse</span><select id="c_sv" data-f="c_sv">${opt([['', 'Todos'], ...svcOpts()], ui('c_sv', ''))}</select></label>
+    <label class="fld"><span>Status</span><select id="c_st" data-f="c_st">${opt([['', 'Todos'], ...Object.entries(CST).map(([k, v]) => [k, v[0]])], ui('c_st', ''))}</select></label>
+  </div></div>
+  <div id="pg-list">${P.captacao.list()}</div>`;
+};
+P.captacao.rows = () => db.contatos.filter(c => !c.arquivado && has(ui('c_q'), c.empresa, c.contato, c.telefone) && (!ui('c_cid') || c.cidade === ui('c_cid')) && (!ui('c_sv') || c.servico === ui('c_sv')) && (!ui('c_st') || c.status === ui('c_st')));
+P.captacao.list = () => {
+  const rows = P.captacao.rows(); const sel = UI.csel || (UI.csel = new Set());
+  const mdl = modelosDe('captacao')[0];
+  return `<div class="row" style="margin-bottom:10px"><b style="flex:1">${rows.length} contato(s)</b>
+    <button class="btn sm" data-act="cToFila" ${sel.size ? '' : 'disabled'}>${ic('whatsapp')}Enviar ${sel.size || ''} para fila do WhatsApp</button>
+    <button class="btn sm danger" data-act="cDelSel" ${sel.size ? '' : 'disabled'}>${ic('trash')}Excluir selecionados</button></div>
+  <div class="tw"><table><thead><tr><th><input type="checkbox" data-act="cSelAll" aria-label="Selecionar todos" ${rows.length && rows.every(r => sel.has(r.id)) ? 'checked' : ''}></th><th>Contato / empresa</th><th>Cidade</th><th>Segmento</th><th>Interesse</th><th>Status</th><th>Envios</th><th>Próximo retorno</th><th></th></tr></thead><tbody>
+  ${rows.map(c => `<tr><td><input type="checkbox" data-act="cSel" data-id="${c.id}" ${sel.has(c.id) ? 'checked' : ''} aria-label="Selecionar"></td>
+    <td><b>${esc(c.empresa)}</b><small>${esc(c.contato)} · <span class="mono">${esc(c.telefone)}</span></small></td><td>${esc(c.cidade)}/${esc(c.uf)}</td><td>${esc(c.segmento)}</td><td>${svcTag(c.servico)}</td>
+    <td><select data-act-change="cStatus" data-id="${c.id}" aria-label="Status" style="width:auto;padding:4px 6px;font-size:12px">${opt(Object.entries(CST).map(([k, v]) => [k, v[0]]), c.status)}</select></td>
+    <td class="n">${c.tentativas || 0}<small>${c.ultimoEnvio ? fDT(c.ultimoEnvio) : '—'}</small></td><td class="n">${fD(c.proximo)}</td>
+    <td class="act"><div class="row">${mdl ? `<a class="btn ic wa" href="${esc(waLink(c.telefone, fill(mdl.texto, varsContato(c))))}" target="_blank" rel="noopener" data-act="cSent" data-id="${c.id}" title="Abrir WhatsApp e registrar envio">${ic('whatsapp')}</a>` : ''}
+      ${c.status !== 'lead' ? ibtn('cToLead', 'leads', 'Converter em lead', '', `data-id="${c.id}"`) : ''}${ibtn('cToPar', 'parceiros', 'Cadastrar como parceiro', '', `data-id="${c.id}"`)}${ibtn('editContato', 'edit', 'Editar', '', `data-id="${c.id}"`)}${ibtn('delContato', 'trash', 'Excluir', 'danger', `data-id="${c.id}"`)}</div></td></tr>`).join('') || '<tr><td colspan="9" class="empty">Nenhum contato com esses filtros.</td></tr>'}
+  </tbody></table></div>`;
+};
+const F_CONTATO = [
+  { k: 'empresa', label: 'Empresa', req: 1 }, { k: 'contato', label: 'Pessoa de contato' },
+  { k: 'telefone', label: 'WhatsApp / telefone', type: 'tel', ph: '+55 49 99999-0000', req: 1 }, { k: 'segmento', label: 'Segmento', list: SEGMENTOS },
+  { k: 'cidade', label: 'Cidade' }, { k: 'uf', label: 'UF', def: 'SC' },
+  { k: 'servico', label: 'Interesse provável', type: 'select', opts: svcOpts }, { k: 'status', label: 'Status', type: 'select', opts: () => Object.entries(CST).map(([k, v]) => [k, v[0]]), def: 'captado' },
+  { k: 'proximo', label: 'Próximo retorno', type: 'date' }
+];
+
+/* ---------- WhatsApp ---------- */
+P.whatsapp = () => {
+  const w = db.wa; const fila = w.fila.map(id => byId(db.contatos, id)).filter(Boolean);
+  const mods = db.modelos.filter(m => m.tipo === 'captacao' || m.tipo === 'reprospeccao');
+  if (!w.texto && mods[0]) { w.texto = mods[0].texto; w.modeloId = mods[0].id; }
+  const cs = db.contatos.filter(c => !c.arquivado);
+  const prox = fila[0];
+  const vars = ['nome_empresa', 'nome_contato', 'segmento', 'cidade', 'uf', 'servico', 'empresa'];
+  return `
+  <div class="ph"><div class="t"><h2>WhatsApp</h2><p>Fila de envio com mensagens personalizadas. Cada envio abre o WhatsApp com o texto pronto. Você só confere e aperta enviar.</p></div></div>
+  <div class="kpis">${kpi('Elegíveis', N(cs.filter(c => !['lead', 'sem_interesse'].includes(c.status)).length))}${kpi('Na fila', N(fila.length), '', 'k-acc')}${kpi('Enviados (total)', N(cs.filter(c => c.tentativas > 0).length))}${kpi('Responderam', N(cs.filter(c => ['respondeu', 'qualificado', 'lead'].includes(c.status)).length), '', 'k-ok')}${kpi('Viraram lead', N(cs.filter(c => c.status === 'lead').length))}</div>
+  <div class="grid-side">
+    <div class="card"><h3>Contatos da campanha</h3>
+      <p class="hint" style="margin:0 0 10px">Escolha quem entra na fila. Envie um por vez para evitar bloqueio do número.</p>
+      <div class="row"><button class="btn pri" data-act="waPick">${ic('plus')}Inserir contatos</button><button class="btn" data-act="waClear" ${fila.length ? '' : 'disabled'}>${ic('trash')}Limpar fila</button></div>
+      <div class="lst" style="margin-top:10px">${fila.map((c, i) => `<div class="li"><span class="mono hint">${i + 1}</span><div class="tx"><b>${esc(c.empresa)}</b><small>${esc(c.cidade)} · ${esc(c.telefone)}</small></div>${ibtn('waRemove', 'x', 'Tirar da fila', '', `data-id="${c.id}"`)}</div>`).join('') || '<div class="empty">Nenhum contato na fila.</div>'}</div>
+      <div class="card" style="margin-top:12px;background:var(--panel-2)"><h3>${ic('play')} Disparo <span class="sp"></span><span class="pill ${fila.length ? 'p-acc' : ''}">${fila.length ? 'Pronto' : 'Fila vazia'}</span></h3>
+        ${prox ? `<p class="hint" style="margin:0 0 8px">Próximo: <b style="color:var(--fg)">${esc(prox.empresa)}</b>. Ao abrir, o envio é registrado e o retorno fica marcado para daqui a ${db.cfg.cadencia} dias.</p>
+        <a class="btn pri" style="width:100%;justify-content:center" href="${esc(waLink(prox.telefone, fill(w.texto, varsContato(prox))))}" target="_blank" rel="noopener" data-act="waSendNext" data-id="${prox.id}">${ic('send')}Abrir WhatsApp do próximo</a>
+        <button class="btn sm" style="margin-top:8px" data-act="waSkip" data-id="${prox.id}">Pular este contato</button>` : '<p class="hint" style="margin:0">Insira contatos para começar.</p>'}
+      </div>
+    </div>
+    <div class="card"><h3>Mensagem</h3>
+      <div class="fg">
+        <label class="fld s2"><span>Modelo</span><select id="wa_m" data-act-change="waModelo">${opt([['', 'Mensagem atual / manual'], ...mods.map(m => [m.id, m.nome])], w.modeloId)}</select></label>
+        <label class="fld s2"><span>Texto</span><textarea id="wa_t" rows="8" data-act-input="waTexto">${esc(w.texto)}</textarea></label>
+        <div class="s2 chips">${vars.map(v => `<button class="chip" data-act="waVar" data-v="${v}">{{${v}}}</button>`).join('')}</div>
+        <label class="fld"><span>Retornar após (dias)</span><input id="wa_cad" type="number" min="1" value="${db.cfg.cadencia}" data-act-input="waCad"></label>
+        <div class="fld" style="align-content:end"><button class="btn" data-act="waSaveModelo">${ic('modelos')}Salvar como modelo</button></div>
+      </div>
+      <div style="margin-top:14px"><div class="hint" style="margin-bottom:6px">Prévia personalizada${prox ? ` para ${esc(prox.empresa)}` : ' (exemplo)'}</div><div class="wabub" id="wa_prev">${esc(fill(w.texto, varsContato(prox || { empresa: 'Frigorífico Exemplo', contato: 'João', cidade: 'Lages', uf: 'SC', segmento: 'Indústria', servico: 'solar' })))}</div></div>
+    </div>
+  </div>`;
+};
+
+/* ---------- Agendas ---------- */
+P.agendas = () => {
+  const base = ui('ag_m', today().slice(0, 7) + '-01'); const d0 = pd(base);
+  const start = addDays(base, -d0.getDay());
+  const q = ui('ag_q', ''), st = ui('ag_st', '');
+  const evs = db.agendas.filter(a => has(q, a.titulo, cliente(a.leadId).empresa) && (!st || a.status === st));
+  const t = today(); const mesLbl = d0.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+  let cells = '';
+  for (let i = 0; i < 42; i++) {
+    const day = addDays(start, i); const es = evs.filter(a => a.data === day).sort((a, b) => a.inicio.localeCompare(b.inicio));
+    cells += `<div class="d${day.slice(0, 7) !== base.slice(0, 7) ? ' out' : ''}${day === t ? ' today' : ''}"><div class="dt"><span class="dn">${+day.slice(8)}</span><button class="add" data-act="newAgenda" data-d="${day}" aria-label="Adicionar em ${fD(day)}">+</button></div>
+      ${es.map(a => `<button class="ev${a.status === 'cancelado' ? ' cancel' : ''}" style="border-left-color:${a.cor || SERV[cliente(a.leadId).servico]?.c || 'var(--volt)'}" data-act="editAgenda" data-id="${a.id}" title="${esc(a.titulo)}"><b>${esc(a.inicio)}</b> ${esc(a.titulo)}</button>`).join('')}</div>`;
+  }
+  const up = evs.filter(a => a.data >= t && a.status !== 'cancelado').sort((a, b) => (a.data + a.inicio).localeCompare(b.data + b.inicio)).slice(0, 8);
+  return `
+  <div class="ph"><div class="t"><h2>Agendas</h2><p style="text-transform:capitalize">${mesLbl}</p></div>
+    <div class="row">${ibtn('agNav', 'left', 'Mês anterior', '', 'data-n="-1"')}<button class="btn" data-act="agNav" data-n="0">${ic('agendas')}Hoje</button>${ibtn('agNav', 'right', 'Próximo mês', '', 'data-n="1"')}
+    <button class="btn" data-act="icsExport">${ic('download')}Exportar para Google Agenda (.ics)</button><button class="btn pri" data-act="newAgenda" data-d="${t}">${ic('plus')}Nova agenda</button></div></div>
+  <div class="card"><div class="filters" style="grid-template-columns:2fr 1fr">
+    <label class="fld"><span>Busca</span><input type="search" id="ag_q" data-f="ag_q" data-full="1" value="${esc(q)}" placeholder="Título ou cliente"></label>
+    <label class="fld"><span>Status</span><select id="ag_st" data-f="ag_st" data-full="1">${opt([['', 'Todos'], ...Object.entries(AST).map(([k, v]) => [k, v[0]])], st)}</select></label></div></div>
+  <div style="overflow-x:auto"><div class="cal" style="min-width:560px">${['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB'].map(x => `<div class="dh">${x}</div>`).join('')}${cells}</div></div>
+  <div class="card"><h3>Próximos compromissos</h3><div class="lst">${up.map(a => `<div class="li"><span class="sev info"></span><div class="tx"><b>${esc(a.titulo)}</b><small>${fD(a.data)} · ${esc(a.inicio)}–${esc(a.fim)} · ${esc(ATIPO[a.tipo] || '')} · ${esc(cliente(a.leadId).empresa || 'sem cliente')}</small></div>${pill(AST, a.status)}${ibtn('editAgenda', 'edit', 'Editar', '', `data-id="${a.id}"`)}</div>`).join('') || '<div class="empty">Nada agendado.</div>'}</div></div>`;
+};
+const F_AGENDA = [
+  { k: 'titulo', label: 'Título', req: 1, span: 1, ph: 'Ex.: Visita técnica – levantamento do telhado' },
+  { k: 'leadId', label: 'Cliente relacionado', type: 'select', opts: () => [['', 'Sem cliente'], ...db.leads.filter(l => !l.arquivado).map(l => [l.id, l.empresa])] },
+  { k: 'tipo', label: 'Tipo', type: 'select', opts: () => Object.entries(ATIPO) },
+  { k: 'data', label: 'Data', type: 'date', req: 1 }, { k: 'status', label: 'Status', type: 'select', opts: () => Object.entries(AST).map(([k, v]) => [k, v[0]]), def: 'agendado' },
+  { k: 'inicio', label: 'Hora inicial', type: 'time', def: '09:00' }, { k: 'fim', label: 'Hora final', type: 'time', def: '10:00' },
+  { k: 'cor', label: 'Cor (opcional)', type: 'color', def: '#3cc4bb' },
+  { k: 'obs', label: 'Observações', type: 'textarea', span: 1, ph: 'Endereço, EPI necessário, documentos a levar...' }
+];
+
+/* ---------- Leads ---------- */
+P.leads = () => `
+  <div class="ph"><div class="t"><h2>Leads e clientes</h2><p>Oportunidades com dados técnicos da unidade consumidora.</p></div>
+    <div class="row"><button class="btn pri" data-act="newLead">${ic('plus')}Novo lead</button></div></div>
+  <div class="card"><div class="filters">
+    <label class="fld"><span>Busca</span><input type="search" id="l_q" data-f="l_q" value="${esc(ui('l_q', ''))}" placeholder="Empresa, contato, cidade"></label>
+    <label class="fld"><span>Serviço</span><select id="l_sv" data-f="l_sv">${opt([['', 'Todos'], ...svcOpts()], ui('l_sv', ''))}</select></label>
+    <label class="fld"><span>Etapa</span><select id="l_et" data-f="l_et">${opt([['', 'Todas'], ...ETAPAS.map(e => [e[0], e[1]])], ui('l_et', ''))}</select></label>
+    <label class="fld"><span>Grupo tarifário</span><select id="l_gr" data-f="l_gr">${opt([['', 'Todos'], ['A', 'Grupo A (média/alta tensão)'], ['B', 'Grupo B (baixa tensão)']], ui('l_gr', ''))}</select></label>
+  </div></div>
+  <div id="pg-list">${P.leads.list()}</div>`;
+P.leads.list = () => {
+  const t = today();
+  const rows = db.leads.filter(l => !l.arquivado && has(ui('l_q'), l.empresa, l.contato, l.cidade, l.telefone) && (!ui('l_sv') || l.servico === ui('l_sv')) && (!ui('l_et') || l.etapa === ui('l_et')) && (!ui('l_gr') || String(l.grupo || '').startsWith(ui('l_gr'))));
+  return `<div class="tw"><table><thead><tr><th>Cliente</th><th>Serviço</th><th>Unidade consumidora</th><th>Etapa</th><th>Valor estimado</th><th>Próximo contato</th><th></th></tr></thead><tbody>
+  ${rows.map(l => `<tr><td><b>${esc(l.empresa)}</b><small>${esc(l.contato)} · ${esc(l.cidade)}/${esc(l.uf)}</small></td><td>${svcTag(l.servico)}</td>
+    <td class="n">${l.consumo ? N(l.consumo) + ' kWh/mês' : '—'}<small>${[l.grupo, l.tensao, l.demanda ? l.demanda + ' kW' : '', l.conta ? R(l.conta) + '/mês' : ''].filter(Boolean).map(esc).join(' · ') || '—'}</small></td>
+    <td><span class="pill ${l.etapa === 'ganho' ? 'p-ok' : l.etapa === 'perdido' ? 'p-bad' : 'p-info'}">${etapaN(l.etapa)}</span></td><td class="n">${l.valor ? R(l.valor) : '—'}</td>
+    <td class="n" style="${l.proximo && l.proximo < t && !['ganho', 'perdido'].includes(l.etapa) ? 'color:var(--bad)' : ''}">${fD(l.proximo)}</td>
+    <td class="act"><div class="row">${l.telefone ? `<a class="btn ic wa" href="${esc(waLink(l.telefone, `Olá, ${(l.contato || '').split(' ')[0]}! Aqui é da ${db.cfg.empresa}.`))}" target="_blank" rel="noopener" title="WhatsApp">${ic('whatsapp')}</a>` : ''}
+      ${ibtn('newOrc', 'orcamentos', 'Criar orçamento', '', `data-lead="${l.id}"`)}${ibtn('newAgenda', 'agendas', 'Agendar visita', '', `data-lead="${l.id}" data-d="${t}"`)}${ibtn('editLead', 'edit', 'Editar', '', `data-id="${l.id}"`)}${ibtn('arqLead', 'archive', 'Arquivar', '', `data-id="${l.id}"`)}</div></td></tr>`).join('') || '<tr><td colspan="7" class="empty">Nenhum lead encontrado.</td></tr>'}
+  </tbody></table></div>`;
+};
+const F_LEAD = [
+  { k: 'empresa', label: 'Empresa / cliente', req: 1 }, { k: 'contato', label: 'Pessoa de contato' },
+  { k: 'telefone', label: 'WhatsApp / telefone', type: 'tel' }, { k: 'email', label: 'E-mail', type: 'email' },
+  { k: 'cidade', label: 'Cidade' }, { k: 'uf', label: 'UF', def: 'SC' },
+  { k: 'servico', label: 'Serviço de interesse', type: 'select', opts: svcOpts, req: 1 }, { k: 'etapa', label: 'Etapa do funil', type: 'select', opts: () => ETAPAS.map(e => [e[0], e[1]]), def: 'novo' },
+  { k: 'valor', label: 'Valor estimado (R$)', type: 'number', step: '0.01' }, { k: 'origem', label: 'Origem', type: 'select', opts: () => ORIGENS },
+  { k: 'proximo', label: 'Próximo contato', type: 'date' }, { k: 'segmento', label: 'Segmento', list: SEGMENTOS },
+  { sec: 'Unidade consumidora' },
+  { k: 'distribuidora', label: 'Distribuidora', list: ['Celesc', 'Copel', 'CEEE Equatorial', 'RGE', 'Enel', 'CPFL', 'Cemig', 'Light', 'Energisa', 'Cooperativa'] }, { k: 'uc', label: 'Nº da UC / instalação' },
+  { k: 'grupo', label: 'Grupo / modalidade tarifária', type: 'select', opts: GRUPOS }, { k: 'tensao', label: 'Tensão de fornecimento', type: 'select', opts: TENSOES },
+  { k: 'consumo', label: 'Consumo médio (kWh/mês)', type: 'number' }, { k: 'conta', label: 'Valor médio da conta (R$/mês)', type: 'number', step: '0.01' },
+  { k: 'demanda', label: 'Demanda contratada (kW)', type: 'number', hint: 'Grupo A' }, { k: 'fp', label: 'Fator de potência médio', type: 'number', step: '0.01', hint: 'Abaixo de 0,92 gera multa de reativo' },
+  { k: 'notas', label: 'Observações', type: 'textarea', span: 1 }
+];
+
+/* ---------- Parceiros ---------- */
+P.parceiros = () => {
+  const t = today();
+  const rows = db.parceiros.filter(p => has(ui('pa_q'), p.nome, p.contato, p.cidade, p.tipo));
+  return `<div class="ph"><div class="t"><h2>Parceiros</h2><p>Integradores, distribuidores, comercializadoras e quem indica clientes.</p></div><div class="row"><button class="btn pri" data-act="newPar">${ic('plus')}Novo parceiro</button></div></div>
+  <div class="card"><div class="filters" style="grid-template-columns:1fr"><label class="fld"><span>Busca</span><input type="search" id="pa_q" data-f="pa_q" data-full="1" value="${esc(ui('pa_q', ''))}" placeholder="Nome, tipo ou cidade"></label></div></div>
+  <div class="tw"><table><thead><tr><th>Parceiro</th><th>Tipo</th><th>Cidade</th><th>Comissão</th><th>Leads indicados</th><th>Último contato</th><th></th></tr></thead><tbody>
+  ${rows.map(p => { const dias = p.ultimo ? diffDays(p.ultimo, t) : null; return `<tr><td><b>${esc(p.nome)}</b><small>${esc(p.contato)} · <span class="mono">${esc(p.telefone)}</span></small>${p.notas ? `<small>${esc(p.notas)}</small>` : ''}</td><td>${esc(p.tipo)}</td><td>${esc(p.cidade)}</td><td class="n">${p.comissao ? N(p.comissao, 1) + '%' : '—'}</td>
+    <td class="n">${db.leads.filter(l => l.parceiroId === p.id).length}</td><td class="n" style="${dias > 30 ? 'color:var(--warn)' : ''}">${fD(p.ultimo)}${dias != null ? `<small>há ${dias} dia(s)</small>` : ''}</td>
+    <td class="act"><div class="row">${p.telefone ? `<a class="btn ic wa" href="${esc(waLink(p.telefone, `Olá, ${(p.contato || '').split(' ')[0]}! Tudo bem? Aqui é da ${db.cfg.empresa}.`))}" target="_blank" rel="noopener" data-act="parTouch" data-id="${p.id}" title="WhatsApp">${ic('whatsapp')}</a>` : ''}${ibtn('editPar', 'edit', 'Editar', '', `data-id="${p.id}"`)}${ibtn('delPar', 'trash', 'Excluir', 'danger', `data-id="${p.id}"`)}</div></td></tr>`; }).join('') || '<tr><td colspan="7" class="empty">Nenhum parceiro cadastrado.</td></tr>'}
+  </tbody></table></div>`;
+};
+const F_PAR = [{ k: 'nome', label: 'Nome', req: 1 }, { k: 'tipo', label: 'Tipo', type: 'select', opts: () => PTIPOS }, { k: 'contato', label: 'Contato' }, { k: 'telefone', label: 'Telefone', type: 'tel' }, { k: 'cidade', label: 'Cidade' }, { k: 'comissao', label: 'Comissão (%)', type: 'number', step: '0.1' }, { k: 'ultimo', label: 'Último contato', type: 'date' }, { k: 'notas', label: 'Observações', type: 'textarea', span: 1 }];
+
+/* ---------- Funil ---------- */
+P.funil = () => `
+  <div class="ph"><div class="t"><h2>Funil comercial</h2><p>Arraste os cartões entre as etapas ou use as setas.</p></div><div class="row"><button class="btn pri" data-act="newLead">${ic('plus')}Novo lead</button></div></div>
+  <div class="card"><div class="filters" style="grid-template-columns:2fr 1fr 1fr">
+    <label class="fld"><span>Buscar oportunidade</span><input type="search" id="f_q" data-f="f_q" value="${esc(ui('f_q', ''))}" placeholder="Empresa, contato, cidade"></label>
+    <label class="fld"><span>Serviço</span><select id="f_sv" data-f="f_sv">${opt([['', 'Todos'], ...svcOpts()], ui('f_sv', ''))}</select></label>
+    <label class="fld"><span>Mostrar</span><select id="f_mo" data-f="f_mo">${opt([['abertos', 'Em aberto'], ['todos', 'Todas as etapas']], ui('f_mo', 'todos'))}</select></label></div></div>
+  <div id="pg-list">${P.funil.list()}</div>`;
+P.funil.list = () => {
+  const t = today();
+  const ls = db.leads.filter(l => !l.arquivado && has(ui('f_q'), l.empresa, l.contato, l.cidade) && (!ui('f_sv') || l.servico === ui('f_sv')));
+  const cols = ui('f_mo', 'todos') === 'abertos' ? ETAPAS.filter(e => !['ganho', 'perdido'].includes(e[0])) : ETAPAS;
+  return `<div class="kan">${cols.map(([k, n, ds], ci) => { const cs = ls.filter(l => l.etapa === k); return `<div class="col" data-drop="${k}">
+    <div class="col-h"><div><b>${n}</b><small>${ds}</small><span class="tot">${Rk(sum(cs, l => l.valor))}</span></div><span class="cnt">${cs.length}</span></div>
+    ${cs.map(l => { const open = db.tarefas.filter(x => !x.done && db.projetos.some(p => p.leadId === l.id && p.id === x.projetoId)).length; return `<div class="kc" draggable="true" data-drag="${l.id}">
+      <div class="h"><b>${esc(l.empresa)}</b>${ci > 0 ? ibtn('mvLead', 'left', 'Etapa anterior', '', `data-id="${l.id}" data-d="-1"`) : ''}${ci < ETAPAS.length - 1 ? ibtn('mvLead', 'right', 'Próxima etapa', '', `data-id="${l.id}" data-d="1"`) : ''}</div>
+      <div class="hint">${esc(l.contato)}</div><div>${svcTag(l.servico)}</div>
+      <div class="meta"><span>${esc(l.cidade)}/${esc(l.uf)}</span>${l.consumo ? `<span>${N(l.consumo)} kWh</span>` : ''}${l.grupo ? `<span>${esc(l.grupo)}</span>` : ''}${l.valor ? `<span>${Rk(l.valor)}</span>` : ''}</div>
+      ${l.proximo && !['ganho', 'perdido'].includes(k) ? `<div class="nx${l.proximo < t ? ' late' : ''}">Próximo contato: ${fD(l.proximo)}</div>` : ''}
+      ${open ? `<div class="nx" style="color:var(--volt)">${open} tarefa(s) aberta(s) no projeto</div>` : ''}
+      <div class="row">${btn('editLead', 'Abrir', 'edit', '', `data-id="${l.id}"`)}${['proposta', 'negociacao', 'visita', 'qualificado'].includes(k) ? btn('newOrc', 'Orçamento', 'orcamentos', '', `data-lead="${l.id}"`) : ''}</div>
+    </div>`; }).join('') || '<div class="none">Sem oportunidades</div>'}</div>`; }).join('')}</div>`;
+};
+
+/* ---------- Reprospecção ---------- */
+P.reprospeccao = () => {
+  const t = today(), dias = +ui('r_d', db.cfg.cadencia), lim = addDays(t, -dias);
+  const cont = db.contatos.filter(c => !c.arquivado && c.status === 'enviada' && ((c.proximo && c.proximo <= t) || (c.ultimoEnvio && c.ultimoEnvio.slice(0, 10) <= lim)));
+  const leads = db.leads.filter(l => !l.arquivado && !['ganho', 'perdido'].includes(l.etapa) && ((l.proximo && l.proximo <= t) || (l.atualizado && l.atualizado <= lim)));
+  const orcs = db.orcs.filter(o => !o.arquivado && ['enviado', 'negociacao'].includes(o.status) && (o.ultimoRetorno || o.criado) <= lim);
+  const pars = db.parceiros.filter(p => !p.ultimo || p.ultimo <= addDays(t, -30));
+  const antigos = db.leads.filter(l => l.etapa === 'ganho' && (l.atualizado || '') <= addDays(t, -180));
+  const perd = db.leads.filter(l => l.etapa === 'perdido');
+  const v = ui('r_v', 'orcs');
+  const mL = modelosDe('reprospeccao')[0], mO = db.modelos.find(m => m.nome.startsWith('Cobrança de retorno')) || modelosDe('orcamento')[0];
+  const q = ui('r_q', '');
+  let body = '';
+  if (v === 'orcs') body = `<table><thead><tr><th>Orçamento</th><th>Cliente</th><th>Valor</th><th>Último retorno</th><th>Validade</th><th>Status</th><th></th></tr></thead><tbody>${orcs.filter(o => has(q, o.numero, o.titulo, cliente(o.leadId).empresa)).map(o => { const c = cliente(o.leadId); return `<tr><td><b class="mono">${esc(o.numero)}</b><small>${esc(o.titulo)}</small></td><td>${esc(c.empresa)}</td><td class="n">${R(orcTotal(o))}</td><td class="n">${fD(o.ultimoRetorno)}<small>há ${diffDays(o.ultimoRetorno || o.criado, t)} dia(s)</small></td><td class="n">${fD(o.validade)}</td><td>${pill(OST, o.status)}</td><td class="act"><div class="row">${mO && c.telefone ? waA(waLink(c.telefone, fill(mO.texto, varsOrc(o))), 'Cobrar', `data-act="orcTouch" data-id="${o.id}"`) : ''}${btn('orcTouch', 'Registrar retorno', 'check', '', `data-id="${o.id}"`)}</div></td></tr>`; }).join('') || '<tr><td colspan="7" class="empty">Nenhum orçamento parado nessa lista.</td></tr>'}</tbody></table>`;
+  else if (v === 'leads' || v === 'antigos' || v === 'perdidos') { const arr = v === 'leads' ? leads : v === 'antigos' ? antigos : perd; body = `<table><thead><tr><th>Lead</th><th>Serviço</th><th>Etapa</th><th>Próximo contato</th><th>Última atualização</th><th></th></tr></thead><tbody>${arr.filter(l => has(q, l.empresa, l.contato)).map(l => `<tr><td><b>${esc(l.empresa)}</b><small>${esc(l.contato)}${l.notas ? ' · ' + esc(l.notas) : ''}</small></td><td>${svcTag(l.servico)}</td><td>${etapaN(l.etapa)}</td><td class="n">${fD(l.proximo)}</td><td class="n">${fD(l.atualizado)}</td><td class="act"><div class="row">${mL && l.telefone ? waA(waLink(l.telefone, fill(mL.texto, varsContato(l))), 'Retomar', `data-act="leadTouch" data-id="${l.id}"`) : ''}${btn('leadTouch', 'Registrar contato', 'check', '', `data-id="${l.id}"`)}</div></td></tr>`).join('') || '<tr><td colspan="6" class="empty">Ninguém nessa lista.</td></tr>'}</tbody></table>`; }
+  else if (v === 'contatos') body = `<table><thead><tr><th>Contato</th><th>Interesse</th><th>Envios</th><th>Último envio</th><th>Retornar em</th><th></th></tr></thead><tbody>${cont.filter(c => has(q, c.empresa, c.contato)).map(c => `<tr><td><b>${esc(c.empresa)}</b><small>${esc(c.contato)} · ${esc(c.cidade)}</small></td><td>${svcTag(c.servico)}</td><td class="n">${c.tentativas}</td><td class="n">${fDT(c.ultimoEnvio)}</td><td class="n">${fD(c.proximo)}</td><td class="act"><div class="row">${mL ? waA(waLink(c.telefone, fill(mL.texto, varsContato(c))), 'Reenviar', `data-act="cSent" data-id="${c.id}"`) : ''}${btn('cResp', 'Respondeu', 'check', '', `data-id="${c.id}"`)}</div></td></tr>`).join('') || '<tr><td colspan="6" class="empty">Nenhum contato aguardando retomada.</td></tr>'}</tbody></table>`;
+  else body = `<table><thead><tr><th>Parceiro</th><th>Tipo</th><th>Último contato</th><th></th></tr></thead><tbody>${pars.filter(p => has(q, p.nome)).map(p => `<tr><td><b>${esc(p.nome)}</b><small>${esc(p.contato)}</small></td><td>${esc(p.tipo)}</td><td class="n">${fD(p.ultimo)}</td><td class="act"><div class="row">${p.telefone ? waA(waLink(p.telefone, `Olá, ${(p.contato || '').split(' ')[0]}! Tudo bem? Passando para alinhar novas oportunidades com a ${db.cfg.empresa}.`), 'Retomar', `data-act="parTouch" data-id="${p.id}"`) : ''}</div></td></tr>`).join('') || '<tr><td colspan="4" class="empty">Todos os parceiros com contato recente.</td></tr>'}</tbody></table>`;
+  const k = (key, l, n) => `<button class="kpi" style="text-align:left;cursor:pointer;${v === key ? 'border-color:var(--accent)' : ''}" data-act="rView" data-v="${key}"><div class="l"><span>${l}</span></div><div class="v">${n}</div></button>`;
+  return `<div class="ph"><div class="t"><h2>Reprospecção</h2><p>Quem precisa de retorno antes que a oportunidade esfrie.</p></div></div>
+  <div class="kpis">${k('contatos', 'Contatos para retomar', cont.length)}${k('leads', 'Leads para retomar', leads.length)}${k('orcs', 'Orçamentos para cobrar', orcs.length)}${k('parceiros', 'Parceiros sem contato (30d)', pars.length)}${k('antigos', 'Clientes antigos (6m+)', antigos.length)}${k('perdidos', 'Perdidos para reativar', perd.length)}</div>
+  <div class="card"><div class="filters" style="grid-template-columns:2fr 1fr 1fr">
+    <label class="fld"><span>Busca</span><input type="search" id="r_q" data-f="r_q" data-full="1" value="${esc(q)}" placeholder="Nome ou número"></label>
+    <label class="fld"><span>O que ver</span><select id="r_v" data-f="r_v" data-full="1">${opt([['orcs', 'Cobrar orçamentos parados'], ['leads', 'Leads sem retorno'], ['contatos', 'Contatos frios sem resposta'], ['parceiros', 'Parceiros'], ['antigos', 'Clientes antigos'], ['perdidos', 'Leads perdidos']], v)}</select></label>
+    <label class="fld"><span>Parado há mais de (dias)</span><input id="r_d" type="number" min="1" data-f="r_d" data-full="1" value="${dias}"></label></div></div>
+  <div class="tw">${body}</div>`;
+};
+
+/* ---------- Orçamentos ---------- */
+P.orcamentos = () => {
+  const os = db.orcs.filter(o => !o.arquivado);
+  const ab = os.filter(o => ['enviado', 'negociacao'].includes(o.status)), ap = os.filter(o => o.status === 'aprovado'), dec = os.filter(o => ['aprovado', 'recusado'].includes(o.status));
+  return `<div class="ph"><div class="t"><h2>Orçamentos</h2><p>Propostas técnicas e comerciais. Aprovou, vira projeto e gera as parcelas.</p></div><div class="row"><button class="btn pri" data-act="newOrc">${ic('plus')}Novo orçamento</button></div></div>
+  <div class="kpis">${kpi('Em análise pelo cliente', N(ab.length), Rk(sum(ab, orcTotal)), 'k-acc')}${kpi('Aprovados', N(ap.length), Rk(sum(ap, orcTotal)), 'k-ok')}${kpi('Taxa de aprovação', dec.length ? Math.round(ap.length / dec.length * 100) + '%' : '—', 'Aprovados ÷ decididos')}${kpi('Ticket médio aprovado', ap.length ? Rk(sum(ap, orcTotal) / ap.length) : '—')}</div>
+  <div class="card"><div class="filters">
+    <label class="fld"><span>Busca</span><input type="search" id="o_q" data-f="o_q" value="${esc(ui('o_q', ''))}" placeholder="Número, título ou cliente"></label>
+    <label class="fld"><span>Serviço</span><select id="o_sv" data-f="o_sv">${opt([['', 'Todos'], ...svcOpts()], ui('o_sv', ''))}</select></label>
+    <label class="fld"><span>Status</span><select id="o_st" data-f="o_st">${opt([['', 'Todos'], ...Object.entries(OST).map(([k, v]) => [k, v[0]])], ui('o_st', ''))}</select></label>
+    <label class="fld"><span>Modelo para envio</span><select id="o_m" data-f="o_m">${opt(modelosDe('orcamento').map(m => [m.id, m.nome]), ui('o_m', ''))}</select></label></div></div>
+  <div id="pg-list">${P.orcamentos.list()}</div>`;
+};
+P.orcamentos.list = () => {
+  const t = today(); const m = byId(db.modelos, ui('o_m', '')) || modelosDe('orcamento')[0];
+  const rows = db.orcs.filter(o => !o.arquivado && has(ui('o_q'), o.numero, o.titulo, cliente(o.leadId).empresa) && (!ui('o_sv') || o.servico === ui('o_sv')) && (!ui('o_st') || o.status === ui('o_st'))).sort((a, b) => b.numero.localeCompare(a.numero));
+  return `<div class="tw"><table><thead><tr><th>Número</th><th>Cliente</th><th>Proposta</th><th>Valor</th><th>Status</th><th>Validade</th><th></th></tr></thead><tbody>
+  ${rows.map(o => { const c = cliente(o.leadId), tot = orcTotal(o), pago = orcPago(o), venc = orcVencido(o); const temPag = db.pags.some(p => p.orcId === o.id); return `<tr>
+    <td><b class="mono">${esc(o.numero)}</b><small>criado ${fD(o.criado)}</small></td><td><b>${esc(c.empresa || '—')}</b><small>${esc(c.contato || '')}</small></td>
+    <td><b>${esc(o.titulo)}</b><small>${svcTag(o.servico)}${o.solar ? ` · ${N(o.solar.kwp, 2)} kWp · ${N(o.solar.ger)} kWh/mês` : ''}${o.economia ? ` · economia ${R(o.economia)}/mês` : ''}</small><small>${esc(condicao(o))}</small></td>
+    <td class="n"><b>${R(tot)}</b>${o.descPct ? `<small>base ${R(orcSub(o))} − ${N(o.descPct, 1)}%</small>` : ''}${temPag ? `<small>pago ${R(pago)} · falta ${R(tot - pago)}</small>` : ''}${venc ? `<small style="color:var(--bad)">vencido ${R(venc)}</small>` : ''}</td>
+    <td>${pill(OST, o.status)}</td><td class="n" style="${o.validade < t && !['aprovado', 'recusado'].includes(o.status) ? 'color:var(--bad)' : ''}">${fD(o.validade)}</td>
+    <td class="act"><div class="row">${ibtn('viewOrc', 'eye', 'Ver proposta', '', `data-id="${o.id}"`)}${m && c.telefone ? `<a class="btn ic wa" href="${esc(waLink(c.telefone, fill(m.texto, varsOrc(o))))}" target="_blank" rel="noopener" data-act="orcSent" data-id="${o.id}" title="Enviar pelo WhatsApp">${ic('whatsapp')}</a>` : ''}
+      ${o.status !== 'aprovado' ? ibtn('aprovar', 'check', 'Aprovar e gerar projeto', '', `data-id="${o.id}"`) : (o.projetoId ? ibtn('go', 'projetos', 'Ver projeto', '', 'data-p="projetos"') : '')}
+      ${ibtn('editOrc', 'edit', 'Editar', '', `data-id="${o.id}"`)}${ibtn('dupOrc', 'copy', 'Duplicar', '', `data-id="${o.id}"`)}${ibtn('arqOrc', 'archive', 'Arquivar', '', `data-id="${o.id}"`)}</div></td></tr>`; }).join('') || '<tr><td colspan="7" class="empty">Nenhum orçamento.</td></tr>'}
+  </tbody></table></div>`;
+};
+let draft = null;
+function orcModal(o, leadId) {
+  const isNew = !o;
+  draft = o ? JSON.parse(JSON.stringify(o)) : { id: uid(), numero: db.cfg.prefixo + db.cfg.seqOrc, leadId: leadId || '', titulo: '', servico: (cliente(leadId).servico) || 'solar', status: 'rascunho', validade: addDays(today(), 15), descPct: 0, entradaPct: 30, nParcelas: 3, forma: 'boleto', itens: [{ d: '', q: 1, u: 'sv', v: 0 }], notas: '', arquivado: false, criado: today(), ultimoRetorno: today(), solar: null, economia: '' };
+  const c = cliente(draft.leadId);
+  const s = draft.solar || { consumo: c.consumo || '', hsp: db.cfg.hsp, pr: db.cfg.pr, pot: db.cfg.pot };
+  const body = `<div class="fg">
+    <label class="fld"><span>Cliente *</span><select id="o_lead">${leadOpts(draft.leadId)}</select></label>
+    <label class="fld"><span>Número / código</span><input id="o_num" type="text" value="${esc(draft.numero)}"></label>
+    <label class="fld s2"><span>Título da proposta *</span><input id="o_tit" type="text" value="${esc(draft.titulo)}" placeholder="Ex.: Usina fotovoltaica 75 kWp em telhado metálico"></label>
+    <label class="fld"><span>Serviço</span><select id="o_sv2">${opt(svcOpts(), draft.servico)}</select></label>
+    <label class="fld"><span>Status</span><select id="o_st2">${opt(Object.entries(OST).map(([k, v]) => [k, v[0]]), draft.status)}</select></label>
+    <label class="fld"><span>Validade</span><input id="o_val" type="date" value="${esc(draft.validade)}"></label>
+    <label class="fld"><span>Economia estimada para o cliente (R$/mês)</span><input id="o_eco" type="number" step="0.01" value="${esc(draft.economia)}"></label>
+  </div>
+  <div class="calc" id="calcbox" ${['solar', 'gd'].includes(draft.servico) ? '' : 'hidden'}>
+    <h4>${ic('sun')} Dimensionamento fotovoltaico</h4>
+    <div class="fg" style="grid-template-columns:repeat(4,minmax(0,1fr))">
+      <label class="fld"><span>Consumo (kWh/mês)</span><input id="s_cons" type="number" value="${esc(s.consumo)}"></label>
+      <label class="fld"><span>HSP (kWh/m²·dia)</span><input id="s_hsp" type="number" step="0.1" value="${esc(s.hsp)}"></label>
+      <label class="fld"><span>Rendimento (PR)</span><input id="s_pr" type="number" step="0.01" value="${esc(s.pr)}"></label>
+      <label class="fld"><span>Módulo (W)</span><input id="s_pot" type="number" value="${esc(s.pot)}"></label>
+    </div>
+    <div class="calc-out" id="calcout"></div>
+    <div class="row"><button class="btn sm pri" data-act="calcApply">${ic('plus')}Inserir sistema nos itens</button><span class="hint">Preço por Wp, tarifa e fio B vêm de Configurações.</span></div>
+  </div>
+  <div><div class="row" style="margin-bottom:8px"><b style="flex:1">Itens e serviços</b><button class="btn sm" data-act="itemAdd">${ic('plus')}Adicionar item</button></div><div class="items" id="items"></div></div>
+  <div class="fg" style="grid-template-columns:repeat(4,minmax(0,1fr))">
+    <label class="fld"><span>Desconto (%)</span><input id="o_desc" type="number" step="0.1" value="${esc(draft.descPct)}"></label>
+    <label class="fld"><span>Entrada (%)</span><input id="o_ent" type="number" step="1" value="${esc(draft.entradaPct)}"></label>
+    <label class="fld"><span>Parcelas após entrada</span><input id="o_np" type="number" min="0" value="${esc(draft.nParcelas)}"></label>
+    <label class="fld"><span>Forma</span><select id="o_fp">${opt(FORMAS, draft.forma)}</select></label>
+  </div>
+  <div class="totbox" id="totbox"></div>
+  <label class="fld"><span>Escopo, premissas e exclusões</span><textarea id="o_not" rows="4" placeholder="Ex.: Não inclui reforço estrutural do telhado. Prazo de execução após aprovação da concessionária.">${esc(draft.notas)}</textarea></label>`;
+  openModal(isNew ? 'Novo orçamento' : `Editar ${draft.numero}`, body, { wide: true, onSave: saveOrc });
+  drawItems(); drawCalc(); drawTot();
+}
+function drawItems() {
+  $('#items').innerHTML = `<div class="ir h"><span>Descrição</span><span>Qtd</span><span class="u">Un.</span><span>Valor unit.</span><span class="tot">Total</span><span></span></div>` +
+    draft.itens.map((it, i) => `<div class="ir"><input type="text" data-i="${i}" data-k="d" value="${esc(it.d)}" placeholder="Ex.: Transformador 75 kVA" aria-label="Descrição"><input type="number" data-i="${i}" data-k="q" value="${esc(it.q)}" aria-label="Quantidade"><input class="u" type="text" data-i="${i}" data-k="u" value="${esc(it.u)}" aria-label="Unidade"><input type="number" step="0.01" data-i="${i}" data-k="v" value="${esc(it.v)}" aria-label="Valor unitário"><span class="tot" id="it_t${i}">${R((+it.q || 0) * (+it.v || 0))}</span>${ibtn('itemDel', 'trash', 'Remover item', 'danger', `data-i="${i}"`)}</div>`).join('');
+}
+function drawTot() {
+  draft.descPct = +$('#o_desc').value || 0; draft.entradaPct = +$('#o_ent').value || 0; draft.nParcelas = +$('#o_np').value || 0;
+  const tot = orcTotal(draft), ent = tot * draft.entradaPct / 100, resto = tot - ent;
+  $('#totbox').innerHTML = `<span class="hint">Subtotal ${R(orcSub(draft))}${draft.descPct ? ` · desconto ${N(draft.descPct, 1)}%` : ''}</span><b>${R(tot)}</b><span class="hint">${draft.entradaPct ? `Entrada ${R(ent)} + ` : ''}${draft.nParcelas ? `${draft.nParcelas}x de ${R(resto / draft.nParcelas)}` : 'à vista'}</span>`;
+}
+function drawCalc() {
+  const box = $('#calcbox'); if (!box || box.hidden) return;
+  const r = calcSolar($('#s_cons').value, $('#s_hsp').value, $('#s_pr').value, $('#s_pot').value);
+  $('#calcout').innerHTML = r ? [['Potência', N(r.kwp, 2) + ' kWp'], ['Módulos', r.mod + ' × ' + r.pot + ' W'], ['Inversor sugerido', '≈ ' + r.inv + ' kW'], ['Geração', N(r.ger) + ' kWh/mês'], ['Investimento', R(r.valor)], ['Economia', R(r.eco) + '/mês'], ['Payback', N(r.payback, 1) + ' anos']].map(([a, b]) => `<div><small>${a}</small><b>${b}</b></div>`).join('') : '<div><small>Informe o consumo médio mensal para dimensionar.</small></div>';
+  return r;
+}
+function saveOrc() {
+  draft.leadId = $('#o_lead').value; draft.numero = $('#o_num').value.trim(); draft.titulo = $('#o_tit').value.trim();
+  draft.servico = $('#o_sv2').value; draft.status = $('#o_st2').value; draft.validade = $('#o_val').value; draft.economia = $('#o_eco').value === '' ? '' : +$('#o_eco').value;
+  draft.forma = $('#o_fp').value; draft.notas = $('#o_not').value.trim(); drawTot();
+  draft.itens = draft.itens.filter(i => i.d || +i.v);
+  if (!draft.leadId) return toast('Selecione o cliente.');
+  if (!draft.titulo) return toast('Informe o título da proposta.');
+  const ix = db.orcs.findIndex(o => o.id === draft.id);
+  if (ix >= 0) db.orcs[ix] = draft; else { db.orcs.push(draft); db.cfg.seqOrc++; }
+  const l = cliente(draft.leadId); if (l.id && ['novo', 'contato', 'qualificado', 'visita'].includes(l.etapa) && draft.status !== 'rascunho') { l.etapa = 'proposta'; l.atualizado = today(); }
+  const wasApproved = draft.status === 'aprovado' && !draft.projetoId;
+  save(); closeModal();
+  if (wasApproved) aprovar(draft.id); else { toast('Orçamento salvo.'); render(); }
+}
+function aprovar(id) {
+  const o = byId(db.orcs, id); if (!o) return;
+  o.status = 'aprovado';
+  const c = cliente(o.leadId); if (c.id) { c.etapa = 'ganho'; c.atualizado = today(); }
+  const tot = orcTotal(o), t = today();
+  if (!db.pags.some(p => p.orcId === o.id)) {
+    const ent = Math.round(tot * (+o.entradaPct || 0)) / 100, n = +o.nParcelas || 0; const resto = Math.round((tot - ent) * 100) / 100;
+    if (ent) db.pags.push({ id: uid(), orcId: o.id, desc: `Entrada (${o.entradaPct}%)`, valor: ent, venc: addDays(t, 3), pagoEm: '', forma: o.forma });
+    if (n) { const each = Math.floor(resto / n * 100) / 100; for (let i = 1; i <= n; i++) db.pags.push({ id: uid(), orcId: o.id, desc: `Parcela ${i}/${n}`, valor: i === n ? Math.round((resto - each * (n - 1)) * 100) / 100 : each, venc: addMonths(t, i), pagoEm: '', forma: o.forma }); }
+    else if (!ent) db.pags.push({ id: uid(), orcId: o.id, desc: 'Pagamento à vista', valor: tot, venc: addDays(t, 3), pagoEm: '', forma: o.forma });
+  }
+  if (!o.projetoId) {
+    const p = { id: uid(), codigo: 'PRJ-' + String(db.cfg.seqPrj++).padStart(3, '0'), nome: `${o.titulo} – ${c.empresa || ''}`, orcId: o.id, leadId: o.leadId, servico: o.servico, valor: tot, inicio: t, prazo: addDays(t, PRAZO[o.servico] || 90), status: 'planejamento', kwp: o.solar ? o.solar.kwp : '', arquivado: false, notas: o.notas };
+    db.projetos.push(p); o.projetoId = p.id;
+    const tpl = TPL[o.servico] || []; const step = Math.max(3, Math.floor((PRAZO[o.servico] || 90) / Math.max(1, tpl.length)));
+    tpl.forEach(([titulo, peso], i) => db.tarefas.push({ id: uid(), projetoId: p.id, titulo, desc: '', data: addDays(t, step * (i + 1)), hora: '09:00', prio: 'normal', peso: null, pesoSug: peso, done: false }));
+  }
+  save(); toast(`${o.numero} aprovado. Projeto e parcelas criados.`); render();
+}
+function propostaHTML(o) {
+  const c = cliente(o.leadId), cfg = db.cfg, tot = orcTotal(o);
+  return `<div class="doc" id="propdoc">
+    <div class="dh2"><div><div style="font:800 20px var(--f-display)">${esc(cfg.empresa)}</div><div class="hint">${[cfg.cnpj && 'CNPJ ' + cfg.cnpj, cfg.crea && 'CREA ' + cfg.crea, cfg.cidade + '/' + cfg.uf, cfg.telefone, cfg.email].filter(Boolean).map(esc).join(' · ')}</div></div>
+      <div style="text-align:right"><div class="mono" style="font-weight:600">${esc(o.numero)}</div><div class="hint">Emitida em ${fD(o.criado)} · válida até ${fD(o.validade)}</div></div></div>
+    <div><h4>Cliente</h4><b>${esc(c.empresa)}</b><div class="hint">${esc(c.contato || '')} ${c.cidade ? '· ' + esc(c.cidade) + '/' + esc(c.uf) : ''}${c.uc ? ' · UC ' + esc(c.uc) : ''}${c.grupo ? ' · ' + esc(c.grupo) : ''}${c.tensao ? ' · ' + esc(c.tensao) : ''}</div></div>
+    <div><h4>Objeto</h4><b style="font-size:15px">${esc(o.titulo)}</b><div>${svcTag(o.servico)}</div></div>
+    ${o.solar ? `<div><h4>Sistema proposto</h4><div class="calc-out"><div><small>Potência</small><b>${N(o.solar.kwp, 2)} kWp</b></div><div><small>Módulos</small><b>${o.solar.mod} × ${o.solar.pot} W</b></div><div><small>Geração média</small><b>${N(o.solar.ger)} kWh/mês</b></div><div><small>Economia estimada</small><b>${R(o.solar.eco)}/mês</b></div><div><small>Retorno</small><b>${N(o.solar.payback, 1)} anos</b></div></div></div>` : (o.economia ? `<div><h4>Economia estimada</h4><b class="mono">${R(o.economia)}/mês · ${R(o.economia * 12)}/ano</b></div>` : '')}
+    <div><h4>Escopo e investimento</h4><div style="overflow-x:auto"><table><thead><tr><th>Item</th><th>Qtd</th><th>Valor unit.</th><th style="text-align:right">Total</th></tr></thead><tbody>${o.itens.map(i => `<tr><td>${esc(i.d)}</td><td class="n">${N(i.q, 2)} ${esc(i.u)}</td><td class="n">${R(i.v)}</td><td class="n" style="text-align:right">${R(i.q * i.v)}</td></tr>`).join('')}</tbody></table></div>
+      <div class="totbox" style="margin-top:10px">${o.descPct ? `<span class="hint">Subtotal ${R(orcSub(o))} · desconto ${N(o.descPct, 1)}%</span>` : ''}<b>${R(tot)}</b><span class="hint">${esc(condicao(o))}</span></div></div>
+    ${o.notas ? `<div><h4>Premissas e observações</h4><div style="white-space:pre-wrap">${esc(o.notas)}</div></div>` : ''}
+  </div>`;
+}
+function propostaTexto(o) {
+  const c = cliente(o.leadId);
+  return `*${db.cfg.empresa}* – Proposta ${o.numero}\n${o.titulo}\nCliente: ${c.empresa}\n\n` + o.itens.map(i => `• ${i.d} – ${N(i.q, 2)} ${i.u} × ${R(i.v)}`).join('\n') +
+    (o.solar ? `\n\nSistema: ${N(o.solar.kwp, 2)} kWp · ${o.solar.mod} módulos de ${o.solar.pot} W · geração ≈ ${N(o.solar.ger)} kWh/mês · economia ≈ ${R(o.solar.eco)}/mês · retorno ≈ ${N(o.solar.payback, 1)} anos` : '') +
+    `\n\n*Investimento: ${R(orcTotal(o))}*\nCondição: ${condicao(o)}\nValidade: ${fD(o.validade)}` + (o.notas ? `\n\n${o.notas}` : '');
+}
+
+/* ---------- Pagamentos ---------- */
+P.pagamentos = () => {
+  const ps = db.pags;
+  const tot = sum(ps, p => p.valor), pg = sum(ps.filter(p => p.pagoEm), p => p.valor), ve = sum(ps.filter(p => pagSt(p) === 'vencido'), p => p.valor);
+  return `<div class="ph"><div class="t"><h2>Pagamentos</h2><p>Parcelas dos orçamentos aprovados numa única fila.</p></div><div class="row"><button class="btn pri" data-act="newPag">${ic('plus')}Lançar parcela</button></div></div>
+  <div class="kpis">${kpi('Total em parcelas', Rk(tot))}${kpi('Recebido', Rk(pg), Math.round(pg / (tot || 1) * 100) + '% do total', 'k-ok')}${kpi('A receber', Rk(tot - pg - ve), '', 'k-acc')}${kpi('Vencido', Rk(ve), `${ps.filter(p => pagSt(p) === 'vencido').length} parcela(s)`, ve ? 'k-bad' : '')}</div>
+  <div class="card"><div class="filters" style="grid-template-columns:2fr 1fr 1fr">
+    <label class="fld"><span>Busca</span><input type="search" id="pg_q" data-f="pg_q" value="${esc(ui('pg_q', ''))}" placeholder="Cliente, orçamento ou descrição"></label>
+    <label class="fld"><span>Status</span><select id="pg_st" data-f="pg_st">${opt([['', 'Todos'], ['pendente', 'Pendente'], ['vencido', 'Vencido'], ['pago', 'Pago']], ui('pg_st', ''))}</select></label>
+    <label class="fld"><span>Vencimento no mês</span><input type="month" id="pg_m" data-f="pg_m" value="${esc(ui('pg_m', ''))}" style="width:100%;padding:8px 10px;background:var(--bg);border:1px solid var(--line-2);border-radius:8px"></label></div></div>
+  <div id="pg-list">${P.pagamentos.list()}</div>`;
+};
+P.pagamentos.list = () => {
+  const m = modelosDe('cobranca')[0];
+  const rows = db.pags.filter(p => { const o = byId(db.orcs, p.orcId) || {}; return has(ui('pg_q'), p.desc, o.numero, cliente(o.leadId).empresa) && (!ui('pg_st') || pagSt(p) === ui('pg_st')) && (!ui('pg_m') || p.venc.slice(0, 7) === ui('pg_m')); }).sort((a, b) => a.venc.localeCompare(b.venc));
+  const SP = { pago: ['Pago', 'p-ok'], pendente: ['Pendente', 'p-warn'], vencido: ['Atrasado', 'p-bad'] };
+  return `<div class="tw"><table><thead><tr><th>Parcela</th><th>Orçamento</th><th>Cliente</th><th>Valor</th><th>Vencimento</th><th>Status</th><th></th></tr></thead><tbody>
+  ${rows.map(p => { const o = byId(db.orcs, p.orcId) || {}, c = cliente(o.leadId), st = pagSt(p); return `<tr><td><b>${esc(p.desc)}</b><small>${esc(p.forma)}</small></td><td class="mono">${esc(o.numero || '—')}</td><td>${esc(c.empresa || '—')}</td><td class="n"><b>${R(p.valor)}</b></td>
+    <td class="n">${fD(p.venc)}${p.pagoEm ? `<small>pago ${fD(p.pagoEm)}</small>` : ''}</td><td>${pill(SP, st)}</td>
+    <td class="act"><div class="row">${st !== 'pago' && m && c.telefone ? `<a class="btn ic wa" href="${esc(waLink(c.telefone, fill(m.texto, Object.assign(varsOrc(o), { parcela: p.desc, valor: R(p.valor), vencimento: fD(p.venc) }))))}" target="_blank" rel="noopener" title="Lembrete pelo WhatsApp">${ic('whatsapp')}</a>` : ''}
+      ${st === 'pago' ? ibtn('pagToggle', 'x', 'Desfazer pagamento', '', `data-id="${p.id}"`) : btn('pagToggle', 'Recebido', 'check', '', `data-id="${p.id}"`)}${ibtn('editPag', 'edit', 'Editar', '', `data-id="${p.id}"`)}${ibtn('delPag', 'trash', 'Excluir', 'danger', `data-id="${p.id}"`)}</div></td></tr>`; }).join('') || '<tr><td colspan="7" class="empty">Nenhuma parcela. Aprove um orçamento para gerar parcelas automaticamente.</td></tr>'}
+  </tbody></table></div>`;
+};
+const F_PAG = [{ k: 'orcId', label: 'Orçamento', type: 'select', req: 1, opts: () => [['', 'Selecione'], ...db.orcs.map(o => [o.id, `${o.numero} – ${cliente(o.leadId).empresa || ''}`])] }, { k: 'desc', label: 'Descrição', req: 1, ph: 'Ex.: Medição 2 – montagem' }, { k: 'valor', label: 'Valor (R$)', type: 'number', step: '0.01', req: 1 }, { k: 'venc', label: 'Vencimento', type: 'date', req: 1 }, { k: 'forma', label: 'Forma', type: 'select', opts: () => FORMAS }, { k: 'pagoEm', label: 'Pago em (deixe vazio se pendente)', type: 'date' }];
+
+/* ---------- Projetos ---------- */
+P.projetos = () => {
+  const ps = db.projetos.filter(p => !p.arquivado);
+  return `<div class="ph"><div class="t"><h2>Projetos</h2><p>Venda aprovada vira projeto, com as etapas do serviço já criadas como tarefas.</p></div><div class="row"><button class="btn" data-act="go" data-p="arquivados">${ic('archive')}Arquivados</button><button class="btn pri" data-act="newPrj">${ic('plus')}Novo projeto</button></div></div>
+  <div class="kpis">${kpi('A iniciar', N(ps.filter(p => p.status === 'planejamento').length))}${kpi('Em andamento', N(ps.filter(p => p.status === 'andamento').length), '', 'k-acc')}${kpi('Aguardando concessionária', N(ps.filter(p => p.status === 'concessionaria').length), 'Parecer, vistoria ou ligação', 'k-warn')}${kpi('Concluídos', N(ps.filter(p => p.status === 'concluido').length), '', 'k-ok')}${kpi('Carteira contratada', Rk(sum(ps.filter(p => p.status !== 'concluido'), p => p.valor)))}</div>
+  <div class="tw"><table><thead><tr><th>Projeto</th><th>Cliente</th><th>Serviço</th><th>Valor</th><th>Prazo</th><th>Status</th><th>Conclusão</th><th></th></tr></thead><tbody>
+  ${ps.map(p => { const ts = db.tarefas.filter(x => x.projetoId === p.id), dn = ts.filter(x => x.done).length, pr = progresso(p), late = p.prazo < today() && p.status !== 'concluido'; return `<tr>
+    <td><b>${esc(p.nome)}</b><small class="mono">${esc(p.codigo)}${p.kwp ? ' · ' + N(p.kwp, 2) + ' kWp' : ''}</small></td><td>${esc(cliente(p.leadId).empresa || '—')}</td><td>${svcTag(p.servico)}</td><td class="n">${R(p.valor)}</td>
+    <td class="n" style="${late ? 'color:var(--bad)' : ''}">${fD(p.prazo)}${late ? '<small>atrasado</small>' : ''}</td>
+    <td><select data-act-change="prjStatus" data-id="${p.id}" aria-label="Status" style="width:auto;padding:4px 6px;font-size:12px">${opt(Object.entries(PST).map(([k, v]) => [k, v[0]]), p.status)}</select></td><td>${prog(pr)}</td>
+    <td class="act"><div class="row">${btn('prjTasks', `Tarefas (${dn}/${ts.length})`, 'tarefas', '', `data-id="${p.id}"`)}${ibtn('editPrj', 'edit', 'Editar', '', `data-id="${p.id}"`)}${p.status !== 'concluido' ? `<button class="btn ic" data-act="prjFinish" data-id="${p.id}" title="Finalizar" aria-label="Finalizar" ${ts.length && dn < ts.length ? 'disabled' : ''}>${ic('flag')}</button>` : ''}${ibtn('arqPrj', 'archive', 'Arquivar', '', `data-id="${p.id}"`)}${ibtn('delPrj', 'trash', 'Excluir', 'danger', `data-id="${p.id}"`)}</div></td></tr>`; }).join('') || '<tr><td colspan="8" class="empty">Nenhum projeto ainda.</td></tr>'}
+  </tbody></table></div><p class="hint" style="margin:0">"Finalizar" libera quando todas as tarefas do projeto estiverem concluídas.</p>`;
+};
+const F_PRJ = [{ k: 'nome', label: 'Nome do projeto', req: 1, span: 1 }, { k: 'codigo', label: 'Código' }, { k: 'leadId', label: 'Cliente', type: 'select', opts: () => [['', 'Selecione'], ...db.leads.map(l => [l.id, l.empresa])] }, { k: 'servico', label: 'Serviço', type: 'select', opts: svcOpts }, { k: 'status', label: 'Status', type: 'select', opts: () => Object.entries(PST).map(([k, v]) => [k, v[0]]) }, { k: 'valor', label: 'Valor contratado (R$)', type: 'number', step: '0.01' }, { k: 'kwp', label: 'Potência (kWp)', type: 'number', step: '0.01', hint: 'Solar e GD' }, { k: 'inicio', label: 'Início', type: 'date' }, { k: 'prazo', label: 'Prazo de entrega', type: 'date' }, { k: 'notas', label: 'Observações', type: 'textarea', span: 1 }];
+
+/* ---------- Tarefas ---------- */
+P.tarefas = () => {
+  const ps = db.projetos.filter(p => !p.arquivado);
+  const pid = ui('t_p', '');
+  const ts = db.tarefas.filter(t => (!pid || t.projetoId === pid) && ps.some(p => p.id === t.projetoId));
+  const cur = ps.find(p => p.id === ui('t_new', pid)) || ps.find(p => p.id === pid) || ps[0];
+  const ws = cur ? pesos(cur.id) : []; const isMan = x => x.man;
+  const restante = Math.max(0, 100 - sum(ws.filter(isMan), x => x.w));
+  const autoN = ws.filter(x => !x.man).length + 1;
+  return `<div class="ph"><div class="t"><h2>Tarefas</h2><p>Tarefas de cada projeto com prazo, prioridade e peso no progresso.</p></div>
+    <div class="row"><select id="t_p" data-f="t_p" data-full="1" style="width:min(420px,100%)" aria-label="Filtrar por projeto">${opt([['', 'Todos os projetos'], ...ps.map(p => [p.id, `${p.codigo} – ${p.nome}`])], pid)}</select></div></div>
+  <div class="kpis">${kpi('Tarefas abertas', N(ts.filter(t => !t.done).length), '', 'k-acc')}${kpi('Concluídas', N(ts.filter(t => t.done).length), '', 'k-ok')}${kpi('Vencidas', N(ts.filter(t => !t.done && t.data && t.data < today()).length), '', ts.some(t => !t.done && t.data && t.data < today()) ? 'k-bad' : '')}${kpi('Projetos com tarefas', N(new Set(ts.map(t => t.projetoId)).size))}</div>
+  <div class="grid-side">
+    <div class="card"><h3>Nova tarefa <span class="sp"></span><button class="btn sm pri" data-act="newTask" ${cur ? '' : 'disabled'}>${ic('plus')}Criar</button></h3>
+      ${cur ? `<div class="fg">
+        <label class="fld s2"><span>Projeto</span><select id="t_new" data-f="t_new" data-full="1">${opt(ps.map(p => [p.id, `${p.codigo} – ${p.nome}`]), cur.id)}</select></label>
+        <div class="s2" style="display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--panel-2);border-radius:8px;padding:8px 10px"><span>${esc(cliente(cur.leadId).empresa || '')}</span><span class="pill p-volt">${progresso(cur)}%</span></div>
+        <label class="fld s2"><span>Título</span><input id="tn_t" type="text" placeholder="Ex.: Protocolar solicitação de vistoria"></label>
+        <label class="fld s2"><span>Descrição</span><textarea id="tn_d" rows="3"></textarea></label>
+        <label class="fld"><span>Data</span><input id="tn_dt" type="date" value="${addDays(today(), 7)}"></label>
+        <label class="fld"><span>Hora</span><input id="tn_h" type="time" value="09:00"></label>
+        <label class="fld"><span>Prioridade</span><select id="tn_p">${opt([['baixa', 'Baixa'], ['normal', 'Normal'], ['alta', 'Alta']], 'normal')}</select></label>
+        <label class="fld"><span>Peso (%)</span><input id="tn_w" type="number" min="0" max="100" placeholder="Automático"></label>
+        <p class="hint s2" style="margin:0">Peso automático desta tarefa: ${N(restante / autoN, 1)}%. Restante automático do projeto: ${N(restante, 1)}%.</p>
+      </div>` : '<p class="hint">Crie um projeto (ou aprove um orçamento) para lançar tarefas.</p>'}
+    </div>
+    <div id="pg-list" style="min-width:0">${P.tarefas.list()}</div>
+  </div>`;
+};
+P.tarefas.list = () => {
+  const pid = ui('t_p', ''), t = today();
+  const ps = db.projetos.filter(p => !p.arquivado);
+  const ts = db.tarefas.filter(x => (!pid || x.projetoId === pid) && ps.some(p => p.id === x.projetoId));
+  const W = {}; ps.forEach(p => pesos(p.id).forEach(x => (W[x.t.id] = x)));
+  ts.sort((a, b) => (a.done - b.done) || (a.data || '9').localeCompare(b.data || '9'));
+  const PR = { alta: ['Alta', 'p-bad'], normal: ['Normal', ''], baixa: ['Baixa', 'p-volt'] };
+  return `<div class="tw"><table style="min-width:680px"><thead><tr><th></th><th>Tarefa</th><th>Projeto</th><th>Prazo</th><th>Prioridade</th><th>Peso</th><th></th></tr></thead><tbody>
+  ${ts.map(x => { const p = byId(db.projetos, x.projetoId), w = W[x.id] || { w: 0 }; return `<tr class="${x.done ? 'done' : ''}"><td><input type="checkbox" data-act="taskToggle" data-id="${x.id}" ${x.done ? 'checked' : ''} aria-label="Concluir"></td>
+    <td><b class="tt">${esc(x.titulo)}</b>${x.desc ? `<small>${esc(x.desc)}</small>` : ''}</td><td>${esc(p.codigo)}<small>${esc(p.nome)}</small></td>
+    <td class="n" style="${!x.done && x.data && x.data < t ? 'color:var(--bad)' : ''}">${fD(x.data)}<small>${esc(x.hora || '')}</small></td><td>${pill(PR, x.prio)}</td><td class="n">${N(w.w, 1)}%<small>${w.man ? 'Manual' : 'Automático'}</small></td>
+    <td class="act"><div class="row">${ibtn('editTask', 'edit', 'Editar', '', `data-id="${x.id}"`)}${ibtn('delTask', 'trash', 'Excluir', 'danger', `data-id="${x.id}"`)}</div></td></tr>`; }).join('') || '<tr><td colspan="7" class="empty">Nenhuma tarefa.</td></tr>'}
+  </tbody></table></div>`;
+};
+const F_TASK = [{ k: 'titulo', label: 'Título', req: 1, span: 1 }, { k: 'desc', label: 'Descrição', type: 'textarea', span: 1 }, { k: 'data', label: 'Data', type: 'date' }, { k: 'hora', label: 'Hora', type: 'time' }, { k: 'prio', label: 'Prioridade', type: 'select', opts: [['baixa', 'Baixa'], ['normal', 'Normal'], ['alta', 'Alta']] }, { k: 'peso', label: 'Peso (%) – vazio = automático', type: 'number' }];
+
+/* ---------- Relatórios ---------- */
+P.relatorios = () => {
+  const t = today(); const months = []; for (let i = -5; i <= 2; i++) months.push(addMonths(t.slice(0, 7) + '-01', i).slice(0, 7));
+  const rec = months.map(m => ({ m, pago: sum(db.pags.filter(p => p.pagoEm && p.pagoEm.slice(0, 7) === m), p => p.valor), prev: sum(db.pags.filter(p => !p.pagoEm && p.venc.slice(0, 7) === m), p => p.valor) }));
+  const mx = Math.max(1, ...rec.map(r => r.pago + r.prev));
+  const ls = db.leads; const funil = ETAPAS.filter(e => e[0] !== 'perdido').map(([k, n], i, arr) => ({ n, c: ls.filter(l => arr.slice(i).some(e => e[0] === l.etapa)).length }));
+  const fmx = Math.max(1, ...funil.map(f => f.c));
+  const orig = ORIGENS.map(o => ({ o, n: ls.filter(l => l.origem === o).length, g: ls.filter(l => l.origem === o && l.etapa === 'ganho').length })).filter(x => x.n);
+  const omx = Math.max(1, ...orig.map(x => x.n));
+  const svc = Object.keys(SERV).map(k => ({ k, ap: sum(db.orcs.filter(o => o.servico === k && o.status === 'aprovado'), orcTotal), ab: sum(db.orcs.filter(o => o.servico === k && ['enviado', 'negociacao'].includes(o.status)), orcTotal) }));
+  const smx = Math.max(1, ...svc.map(s => s.ap + s.ab));
+  const kwp = sum(db.projetos.filter(p => ['solar', 'gd'].includes(p.servico)), p => p.kwp);
+  const ger = kwp * db.cfg.hsp * 30 * db.cfg.pr;
+  const perdidos = ls.filter(l => l.etapa === 'perdido').length, ganhos = ls.filter(l => l.etapa === 'ganho').length;
+  return `<div class="ph"><div class="t"><h2>Relatórios</h2><p>Desempenho comercial, receita e capacidade instalada.</p></div></div>
+  <div class="kpis">${kpi('Taxa de conversão de leads', (ganhos + perdidos) ? Math.round(ganhos / (ganhos + perdidos) * 100) + '%' : '—', `${ganhos} ganhos · ${perdidos} perdidos`)}${kpi('Potência FV contratada', N(kwp, 2) + ' kWp', `≈ ${N(ger)} kWh/mês gerados`, 'k-acc')}${kpi('CO₂ evitado (estimado)', N(ger * 12 * 0.0385 / 1000, 1) + ' t/ano', 'Fator médio SIN 0,0385 tCO₂/MWh')}${kpi('Receita recebida (total)', Rk(sum(db.pags.filter(p => p.pagoEm), p => p.valor)), '', 'k-ok')}</div>
+  <div class="card"><h3>Fluxo de recebimentos <span class="sp"></span><span class="legend"><span><i style="background:var(--volt)"></i>Recebido</span><span><i style="background:color-mix(in srgb,var(--accent) 70%,transparent)"></i>A receber</span></span></h3>
+    <div class="vb">${rec.map(r => `<div class="c" title="${r.m}: recebido ${R(r.pago)} · a receber ${R(r.prev)}"><span>${r.pago + r.prev ? Rk(r.pago + r.prev).replace('R$ ', '') : ''}</span>${r.prev ? `<i class="pend" style="height:${r.prev / mx * 85}%;border-radius:${r.pago ? '4px 4px 0 0' : '4px 4px 0 0'}"></i>` : ''}${r.pago ? `<i style="height:${r.pago / mx * 85}%;border-radius:${r.prev ? '0' : '4px 4px 0 0'}"></i>` : ''}</div>`).join('')}</div>
+    <div class="vlab">${rec.map(r => `<span>${pd(r.m + '-01').toLocaleDateString('pt-BR', { month: 'short' }).replace('.', '')}/${r.m.slice(2, 4)}</span>`).join('')}</div></div>
+  <div class="grid2">
+    <div class="card"><h3>Funil acumulado</h3><div class="hb">${funil.map(f => `<div class="r"><span>${f.n}</span><div class="tr"><i style="width:${f.c / fmx * 100}%;background:var(--volt)"></i></div><span class="vv">${f.c}</span></div>`).join('')}</div><p class="hint" style="margin:10px 0 0">Quantos leads chegaram pelo menos até cada etapa.</p></div>
+    <div class="card"><h3>Propostas por serviço <span class="sp"></span><span class="legend"><span><i style="background:var(--ok)"></i>Aprovado</span><span><i style="background:var(--line-2)"></i>Em análise</span></span></h3><div class="hb">${svc.map(s => `<div class="r"><span>${svcTag(s.k)}</span><div class="tr" style="display:flex"><i style="width:${s.ap / smx * 100}%;background:var(--ok);border-radius:3px 0 0 3px"></i><i style="width:${s.ab / smx * 100}%;background:var(--line-2);border-radius:0"></i></div><span class="vv">${Rk(s.ap + s.ab)}</span></div>`).join('')}</div></div>
+  </div>
+  <div class="card"><h3>Origem dos leads</h3><div class="hb">${orig.map(x => `<div class="r"><span>${esc(x.o)}</span><div class="tr"><i style="width:${x.n / omx * 100}%;background:var(--info)"></i></div><span class="vv">${x.n} <small style="color:var(--muted)">· ${x.g} ganho(s)</small></span></div>`).join('') || '<p class="hint">Sem leads ainda.</p>'}</div></div>`;
+};
+
+/* ---------- Arquivados ---------- */
+P.arquivados = () => {
+  const sec = (tit, arr, lbl, restore, del) => `<div class="card"><h3>${tit} <span class="sp"></span><span class="pill">${arr.length}</span></h3><div class="lst">${arr.map(x => `<div class="li"><div class="tx"><b>${esc(lbl(x)[0])}</b><small>${esc(lbl(x)[1])}</small></div>${btn(restore, 'Restaurar', 'refresh', '', `data-id="${x.id}"`)}${ibtn(del, 'trash', 'Excluir definitivamente', 'danger', `data-id="${x.id}"`)}</div>`).join('') || '<div class="empty">Nada arquivado.</div>'}</div></div>`;
+  return `<div class="ph"><div class="t"><h2>Arquivados</h2><p>Itens fora das listas do dia a dia. Restaure quando quiser.</p></div></div>
+  ${sec('Leads', db.leads.filter(l => l.arquivado), l => [l.empresa, `${SERV[l.servico]?.n || ''} · ${etapaN(l.etapa)}`], 'resLead', 'delLead')}
+  ${sec('Orçamentos', db.orcs.filter(o => o.arquivado), o => [`${o.numero} – ${o.titulo}`, `${cliente(o.leadId).empresa || ''} · ${R(orcTotal(o))}`], 'resOrc', 'delOrc')}
+  ${sec('Projetos', db.projetos.filter(p => p.arquivado), p => [`${p.codigo} – ${p.nome}`, `${PST[p.status][0]} · ${R(p.valor)}`], 'resPrj', 'delPrj')}`;
+};
+
+/* ---------- Modelos ---------- */
+const MTIPOS = { captacao: 'Captação (primeiro contato)', reprospeccao: 'Reprospecção', orcamento: 'Orçamento', cobranca: 'Cobrança de parcela' };
+P.modelos = () => `<div class="ph"><div class="t"><h2>Modelos de mensagem</h2><p>Textos usados no WhatsApp, reprospecção, envio de proposta e cobrança.</p></div><div class="row"><button class="btn pri" data-act="newModelo">${ic('plus')}Novo modelo</button></div></div>
+  <div class="card"><h3>Variáveis disponíveis</h3><div class="chips">${['nome_empresa', 'nome_contato', 'cidade', 'uf', 'segmento', 'servico', 'empresa', 'numero', 'titulo', 'valor', 'validade', 'condicao', 'parcela', 'vencimento'].map(v => `<span class="chip">{{${v}}}</span>`).join('')}</div><p class="hint" style="margin:8px 0 0">As variáveis de proposta e parcela só são preenchidas nos envios dessas telas.</p></div>
+  <div class="grid2">${db.modelos.map(m => `<div class="card"><h3>${esc(m.nome)} <span class="sp"></span><span class="pill p-acc">${esc(MTIPOS[m.tipo] || m.tipo)}</span></h3><div class="preview">${esc(m.texto)}</div><div class="row" style="margin-top:10px">${btn('editModelo', 'Editar', 'edit', '', `data-id="${m.id}"`)}${btn('delModelo', 'Excluir', 'trash', 'danger', `data-id="${m.id}"`)}</div></div>`).join('')}</div>`;
+const F_MOD = [{ k: 'nome', label: 'Nome', req: 1 }, { k: 'tipo', label: 'Uso', type: 'select', opts: () => Object.entries(MTIPOS) }, { k: 'texto', label: 'Texto', type: 'textarea', span: 1, req: 1 }];
+
+/* ---------- Configurações ---------- */
+const F_CFG = [
+  { sec: 'Empresa (aparece nas propostas)' }, { k: 'empresa', label: 'Nome da empresa', req: 1 }, { k: 'cnpj', label: 'CNPJ' }, { k: 'crea', label: 'Registro CREA do responsável técnico' }, { k: 'responsavel', label: 'Responsável' },
+  { k: 'telefone', label: 'Telefone / WhatsApp', type: 'tel' }, { k: 'email', label: 'E-mail', type: 'email' }, { k: 'cidade', label: 'Cidade' }, { k: 'uf', label: 'UF' },
+  { sec: 'Premissas do dimensionamento solar' },
+  { k: 'hsp', label: 'HSP padrão (kWh/m²·dia)', type: 'number', step: '0.1', hint: 'Serra catarinense ≈ 4,4–4,8' }, { k: 'pr', label: 'Rendimento global (PR)', type: 'number', step: '0.01', hint: 'Perdas típicas: 0,75–0,82' },
+  { k: 'pot', label: 'Potência do módulo (W)', type: 'number' }, { k: 'custoWp', label: 'Preço de venda (R$/Wp)', type: 'number', step: '0.01' },
+  { k: 'tarifa', label: 'Tarifa com impostos (R$/kWh)', type: 'number', step: '0.01' }, { k: 'fioB', label: 'Parcela não compensada – fio B (0 a 1)', type: 'number', step: '0.01', hint: 'Lei 14.300: cobrança gradual do fio B' },
+  { sec: 'Comercial' }, { k: 'prefixo', label: 'Prefixo dos orçamentos' }, { k: 'seqOrc', label: 'Próximo número de orçamento', type: 'number' }, { k: 'cadencia', label: 'Retornar contatos após (dias)', type: 'number' }
+];
+P.configuracoes = () => `<div class="ph"><div class="t"><h2>Configurações</h2><p>Dados da empresa e premissas usadas nos cálculos.</p></div><div class="row"><button class="btn pri" data-act="saveCfg">${ic('check')}Salvar configurações</button></div></div>
+  <div class="card"><div class="fg">${F_CFG.map(f => field(f, db.cfg)).join('')}</div></div>`;
+
+/* ---------- Backup ---------- */
+P.backup = () => `<div class="ph"><div class="t"><h2>Backup</h2><p>Os dados ficam salvos neste navegador. Faça backup com frequência.</p></div></div>
+  <div class="kpis">${kpi('Leads', db.leads.length)}${kpi('Contatos captados', db.contatos.length)}${kpi('Orçamentos', db.orcs.length)}${kpi('Projetos', db.projetos.length)}${kpi('Último backup', db.cfg.ultimoBackup ? fDT(db.cfg.ultimoBackup) : 'Nunca', '', db.cfg.ultimoBackup ? '' : 'k-warn')}</div>
+  ${saveOk ? '' : '<div class="card" style="border-color:var(--bad)"><b style="color:var(--bad)">O navegador não está permitindo salvar.</b> As alterações valem só até fechar a página. Exporte um backup antes de sair.</div>'}
+  <div class="grid2">
+    <div class="card"><h3>${ic('download')} Exportar</h3><p class="hint" style="margin-top:0">Gera um arquivo JSON com todos os dados: leads, orçamentos, pagamentos, projetos, tarefas e modelos.</p><button class="btn pri" data-act="exportJson">${ic('download')}Exportar backup</button></div>
+    <div class="card"><h3>${ic('upload')} Restaurar</h3><p class="hint" style="margin-top:0">Substitui os dados atuais pelos do arquivo. Exporte antes se quiser guardar o que está aqui.</p>
+      <div class="row"><label class="btn">${ic('upload')}Escolher arquivo<input type="file" accept=".json,application/json" id="impfile" hidden></label><button class="btn" data-act="pasteJson">Colar JSON</button></div></div>
+  </div>
+  <div class="card"><h3>Começar do zero</h3><p class="hint" style="margin-top:0">${db.demo ? 'Você está usando dados de demonstração. ' : ''}Apaga todos os registros e mantém só as configurações e os modelos de mensagem.</p>
+    <div class="row"><button class="btn danger" data-act="wipe">${ic('trash')}Apagar todos os dados</button><button class="btn" data-act="reseed">${ic('refresh')}Recarregar dados de demonstração</button></div></div>`;
+
+/* ---------- Sobre ---------- */
+P.sobre = () => `<div class="ph"><div class="t"><h2>Sobre o F3F Energy CRM</h2><p>CRM operacional para engenharia elétrica e energia.</p></div></div>
+  <div class="card" style="max-width:780px;display:grid;gap:10px">
+    <p style="margin:0">Fluxo completo de uma venda de engenharia: <b>captação</b> de contatos frios, abordagem pelo <b>WhatsApp</b>, qualificação no <b>funil</b>, <b>visita técnica</b> na agenda, <b>proposta</b> com dimensionamento, <b>aprovação</b> que gera o <b>projeto</b> com as etapas do serviço e as <b>parcelas</b> a receber.</p>
+    <div class="hb">${Object.keys(SERV).map(k => `<div class="r" style="grid-template-columns:200px minmax(0,1fr)"><span>${svcTag(k)}</span><span class="hint">${TPL[k].length} etapas-padrão · prazo-base ${PRAZO[k]} dias</span></div>`).join('')}</div>
+    <p class="hint" style="margin:0">Os dados ficam no armazenamento local deste navegador. Nenhuma informação é enviada a servidores. Use a tela Backup para levar os dados para outro computador.</p>
+    <p class="hint" style="margin:0">Os valores de geração, economia e payback são estimativas comerciais. O dimensionamento final depende da visita técnica e do projeto executivo.</p>
+  </div>`;
+
+/* ============================================================
+   AÇÕES
+   ============================================================ */
+const A = {};
+A.go = d => go(d.p);
+A.menu = () => { $('#app').classList.toggle('open'); $('#scrim').hidden = !$('#app').classList.contains('open'); };
+A.theme = () => { const r = document.documentElement; const cur = r.dataset.theme || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'); r.dataset.theme = cur === 'dark' ? 'light' : 'dark'; try { localStorage.setItem(KEY + '-theme', r.dataset.theme); } catch (e) {} };
+A.bell = () => { const b = $('#bdrop'); const al = alerts(); b.hidden = !b.hidden; $('#gdrop').hidden = true; if (!b.hidden) b.innerHTML = al.map(a => `<button class="it" data-act="go" data-p="${a.go}"><span class="sev ${a.sev}" style="align-self:stretch"></span><span><b>${esc(a.txt)}</b><small>${esc(a.sub)}</small></span></button>`).join('') || '<div class="empty">Nenhum alerta.</div>'; };
+A.mclose = closeModal;
+A.ovclose = (d, el, e) => { if (e.target === el) closeModal(); };
+A.msave = () => modalSave && modalSave();
+A.copyexp = () => copyText($('#exptxt').value, $('#exptxt'));
+
+/* leads */
+A.newLead = () => formModal('Novo lead', F_LEAD, { servico: 'solar', etapa: 'novo', uf: db.cfg.uf, origem: ORIGENS[0] }, o => { db.leads.push(Object.assign({ id: uid(), arquivado: false, criado: today(), atualizado: today() }, o)); toast('Lead criado.'); });
+A.editLead = d => { const l = byId(db.leads, d.id); formModal('Editar lead', F_LEAD, l, o => { Object.assign(l, o, { atualizado: today() }); toast('Lead atualizado.'); }, { wide: true }); };
+A.arqLead = d => { byId(db.leads, d.id).arquivado = true; save(); toast('Lead arquivado.'); render(); };
+A.resLead = d => { byId(db.leads, d.id).arquivado = false; save(); render(); };
+A.delLead = d => confirmBox('Excluir este lead definitivamente?', () => { db.leads = db.leads.filter(x => x.id !== d.id); });
+A.mvLead = d => { const l = byId(db.leads, d.id); const i = ETAPAS.findIndex(e => e[0] === l.etapa); const n = Math.min(ETAPAS.length - 1, Math.max(0, i + +d.d)); l.etapa = ETAPAS[n][0]; l.atualizado = today(); save(); refresh(); };
+A.leadTouch = d => { const l = byId(db.leads, d.id); l.atualizado = today(); l.proximo = addDays(today(), db.cfg.cadencia); save(); setTimeout(render, 50); };
+
+/* captação */
+A.newContato = () => formModal('Adicionar contato', F_CONTATO, { uf: db.cfg.uf, status: 'captado', servico: 'solar' }, o => { if (db.contatos.some(c => c.telefone.replace(/\D/g, '') === o.telefone.replace(/\D/g, ''))) { toast('Esse telefone já está na captação.'); return false; } db.contatos.push(Object.assign({ id: uid(), tentativas: 0, ultimoEnvio: '', arquivado: false, criado: today() }, o)); toast('Contato adicionado.'); });
+A.editContato = d => { const c = byId(db.contatos, d.id); formModal('Editar contato', F_CONTATO, c, o => { Object.assign(c, o); }); };
+A.delContato = d => confirmBox('Excluir este contato?', () => { db.contatos = db.contatos.filter(x => x.id !== d.id); UI.csel && UI.csel.delete(d.id); });
+A.cSel = d => { const s = UI.csel; s.has(d.id) ? s.delete(d.id) : s.add(d.id); refresh(); };
+A.cSelAll = (d, el) => { const rows = P.captacao.rows(); UI.csel = el.checked ? new Set(rows.map(r => r.id)) : new Set(); refresh(); };
+A.cDelSel = () => confirmBox(`Excluir ${UI.csel.size} contato(s)?`, () => { db.contatos = db.contatos.filter(c => !UI.csel.has(c.id)); UI.csel = new Set(); });
+A.cToFila = () => { for (const id of UI.csel) if (!db.wa.fila.includes(id)) db.wa.fila.push(id); for (const id of UI.csel) { const c = byId(db.contatos, id); if (c.status === 'captado') c.status = 'preparada'; } UI.csel = new Set(); save(); toast('Contatos na fila do WhatsApp.'); go('whatsapp'); };
+A.cSent = d => { const c = byId(db.contatos, d.id); c.tentativas = (c.tentativas || 0) + 1; c.ultimoEnvio = new Date().toISOString(); c.proximo = addDays(today(), db.cfg.cadencia); if (['captado', 'preparada'].includes(c.status)) c.status = 'enviada'; save(); setTimeout(render, 50); };
+A.cResp = d => { const c = byId(db.contatos, d.id); c.status = 'respondeu'; c.proximo = ''; save(); render(); };
+A.cToLead = d => { const c = byId(db.contatos, d.id); db.leads.push({ id: uid(), empresa: c.empresa, contato: c.contato, telefone: c.telefone, email: '', cidade: c.cidade, uf: c.uf, servico: c.servico || 'solar', segmento: c.segmento, etapa: ['respondeu', 'qualificado'].includes(c.status) ? 'qualificado' : 'contato', valor: '', origem: 'Captação ativa', proximo: addDays(today(), 2), notas: '', arquivado: false, criado: today(), atualizado: today() }); c.status = 'lead'; save(); toast(`${c.empresa} agora é lead.`); render(); };
+A.cToPar = d => { const c = byId(db.contatos, d.id); db.parceiros.push({ id: uid(), nome: c.empresa, tipo: PTIPOS[0], contato: c.contato, telefone: c.telefone, cidade: c.cidade, comissao: 0, ultimo: today(), notas: '' }); save(); toast('Cadastrado em Parceiros.'); };
+const CSV_HDR = 'empresa;contato;telefone;cidade;uf;segmento;interesse';
+A.csvModelo = () => offerFile('modelo-captacao-f3f.csv', CSV_HDR + '\nFrigorífico Exemplo;João;+55 49 99999-0000;Lages;SC;Indústria;ml\nHotel Exemplo;Maria;49988887777;Urubici;SC;Hotelaria;solar\n', 'text/csv', 'Modelo de planilha');
+A.importCsv = () => openModal('Importar planilha CSV', `<p class="hint" style="margin:0">Colunas: <span class="mono">${CSV_HDR}</span>. Separador ";" ou ",". Interesse: ${Object.keys(SERV).join(', ')}. Telefones repetidos são ignorados.</p>
+  <label class="btn" style="justify-self:start">${ic('upload')}Escolher arquivo .csv<input type="file" accept=".csv,text/csv,text/plain" id="csvfile" hidden></label>
+  <label class="fld"><span>Ou cole o conteúdo</span><textarea id="csvtxt" rows="8" class="mono" style="font-size:12px" placeholder="${CSV_HDR}"></textarea></label>`, { saveLbl: 'Importar', onSave: () => importCsv($('#csvtxt').value) });
+function importCsv(txt) {
+  const lines = String(txt || '').split(/\r?\n/).filter(l => l.trim()); if (!lines.length) return toast('Cole ou escolha um arquivo.');
+  const sep = (lines[0].match(/;/g) || []).length >= (lines[0].match(/,/g) || []).length ? ';' : ',';
+  const split = l => { const out = []; let cur = '', q = false; for (const ch of l) { if (ch === '"') q = !q; else if (ch === sep && !q) { out.push(cur); cur = ''; } else cur += ch; } out.push(cur); return out.map(s => s.trim()); };
+  let hdr = split(lines[0]).map(norm); let start = 1;
+  if (!hdr.includes('empresa')) { hdr = CSV_HDR.split(';'); start = 0; }
+  const ix = k => hdr.indexOf(k);
+  const tels = new Set(db.contatos.map(c => c.telefone.replace(/\D/g, '')));
+  let novos = 0, dup = 0;
+  for (const l of lines.slice(start)) {
+    const r = split(l); const g = k => ix(k) >= 0 ? (r[ix(k)] || '') : '';
+    const tel = g('telefone'); const dg = tel.replace(/\D/g, '');
+    if (!g('empresa') || !dg) continue;
+    if (tels.has(dg)) { dup++; continue; } tels.add(dg);
+    const sv = norm(g('interesse')); const servico = SERV[sv] ? sv : (Object.keys(SERV).find(k => norm(SERV[k].n).includes(sv) && sv) || 'solar');
+    db.contatos.push({ id: uid(), empresa: g('empresa'), contato: g('contato'), telefone: tel, cidade: g('cidade'), uf: g('uf') || db.cfg.uf, segmento: g('segmento'), servico, status: 'captado', tentativas: 0, ultimoEnvio: '', proximo: '', arquivado: false, criado: today() });
+    novos++;
+  }
+  save(); closeModal(); toast(`${novos} contato(s) importado(s). ${dup} duplicado(s) ignorado(s).`); render();
+}
+
+/* whatsapp */
+A.waPick = () => {
+  const cs = db.contatos.filter(c => !c.arquivado && !['lead', 'sem_interesse'].includes(c.status));
+  UI.wsel = new Set(db.wa.fila);
+  openModal('Inserir contatos na fila', `<div class="filters" style="grid-template-columns:2fr 1fr 1fr"><label class="fld"><span>Busca</span><input type="search" id="wp_q" placeholder="Empresa ou cidade"></label><label class="fld"><span>Status</span><select id="wp_st">${opt([['', 'Todos'], ...Object.entries(CST).filter(([k]) => !['lead', 'sem_interesse'].includes(k)).map(([k, v]) => [k, v[0]])], '')}</select></label><label class="fld"><span>Interesse</span><select id="wp_sv">${opt([['', 'Todos'], ...svcOpts()], '')}</select></label></div>
+    <div class="row"><button class="btn sm" data-act="wpAll">Selecionar filtrados</button><button class="btn sm" data-act="wpNone">Limpar seleção</button><span class="hint" id="wp_n"></span></div><div id="wp_list" class="tw" style="max-height:50vh;overflow:auto"></div>`, { wide: true, saveLbl: 'Colocar na fila', onSave: () => { db.wa.fila = [...UI.wsel]; db.wa.fila.forEach(id => { const c = byId(db.contatos, id); if (c && c.status === 'captado') c.status = 'preparada'; }); save(); closeModal(); render(); } });
+  const draw = () => { const q = $('#wp_q').value, st = $('#wp_st').value, sv = $('#wp_sv').value; UI.wrows = cs.filter(c => has(q, c.empresa, c.cidade, c.contato) && (!st || c.status === st) && (!sv || c.servico === sv));
+    $('#wp_list').innerHTML = `<table style="min-width:600px"><thead><tr><th></th><th>Contato</th><th>Cidade</th><th>Interesse</th><th>Status</th><th>Último envio</th></tr></thead><tbody>${UI.wrows.map(c => `<tr><td><input type="checkbox" data-act="wpSel" data-id="${c.id}" ${UI.wsel.has(c.id) ? 'checked' : ''} aria-label="Selecionar"></td><td><b>${esc(c.empresa)}</b><small class="mono">${esc(c.telefone)}</small></td><td>${esc(c.cidade)}</td><td>${svcTag(c.servico)}</td><td>${pill(CST, c.status)}</td><td class="n">${fDT(c.ultimoEnvio)}</td></tr>`).join('') || '<tr><td colspan="6" class="empty">Nenhum contato.</td></tr>'}</tbody></table>`;
+    $('#wp_n').textContent = `${UI.wsel.size} selecionado(s) · ${UI.wrows.length} filtrado(s)`; };
+  UI.wdraw = draw; ['wp_q', 'wp_st', 'wp_sv'].forEach(id => $('#' + id).addEventListener('input', draw)); draw();
+};
+A.wpSel = d => { UI.wsel.has(d.id) ? UI.wsel.delete(d.id) : UI.wsel.add(d.id); UI.wdraw(); };
+A.wpAll = () => { UI.wrows.forEach(c => UI.wsel.add(c.id)); UI.wdraw(); };
+A.wpNone = () => { UI.wsel = new Set(); UI.wdraw(); };
+A.waClear = () => { db.wa.fila = []; save(); render(); };
+A.waRemove = d => { db.wa.fila = db.wa.fila.filter(x => x !== d.id); save(); render(); };
+A.waSkip = d => { db.wa.fila = db.wa.fila.filter(x => x !== d.id); save(); render(); };
+A.waSendNext = d => { A.cSent(d); db.wa.fila = db.wa.fila.filter(x => x !== d.id); save(); toast('Envio registrado. Próximo contato pronto.'); };
+A.waVar = d => { const ta = $('#wa_t'); const s = ta.selectionStart ?? ta.value.length; ta.value = ta.value.slice(0, s) + `{{${d.v}}}` + ta.value.slice(ta.selectionEnd ?? s); ta.focus(); CH.waTexto(ta); };
+A.waSaveModelo = () => formModal('Salvar como modelo', F_MOD, { tipo: 'captacao', texto: db.wa.texto }, o => { const m = Object.assign({ id: uid() }, o); db.modelos.push(m); db.wa.modeloId = m.id; toast('Modelo salvo.'); });
+
+/* agendas */
+A.agNav = d => { const n = +d.n; UI.ag_m = n === 0 ? today().slice(0, 7) + '-01' : addMonths(ui('ag_m', today().slice(0, 7) + '-01'), n); render(); };
+A.newAgenda = d => formModal('Nova agenda', F_AGENDA, { data: d.d || today(), leadId: d.lead || '', tipo: 'visita', status: 'agendado', inicio: '09:00', fim: '10:00', cor: '#3cc4bb', titulo: d.lead ? `Visita técnica – ${cliente(d.lead).empresa}` : '' }, o => { db.agendas.push(Object.assign({ id: uid() }, o)); const l = cliente(o.leadId); if (l.id && o.tipo === 'visita' && ['novo', 'contato', 'qualificado'].includes(l.etapa)) { l.etapa = 'visita'; l.atualizado = today(); } toast('Agenda criada.'); });
+A.editAgenda = d => { const a = byId(db.agendas, d.id); formModal('Editar agenda', F_AGENDA, a, o => { Object.assign(a, o); }, { foot: `<button class="btn danger" data-act="delAgenda" data-id="${a.id}">${ic('trash')}Excluir</button><span style="flex:1"></span><button class="btn" data-act="mclose">Cancelar</button><button class="btn pri" data-act="msave">${ic('check')}Salvar</button>` }); };
+A.delAgenda = d => { db.agendas = db.agendas.filter(x => x.id !== d.id); save(); closeModal(); render(); };
+A.icsExport = () => {
+  const st = s => s.replace(/[-:]/g, ''); const escI = s => String(s || '').replace(/[,;\\]/g, m => '\\' + m).replace(/\n/g, '\\n');
+  const evs = db.agendas.filter(a => a.status !== 'cancelado').map(a => `BEGIN:VEVENT\r\nUID:${a.id}@f3f-crm\r\nDTSTAMP:${st(new Date().toISOString().slice(0, 19))}Z\r\nDTSTART:${st(a.data)}T${st(a.inicio || '09:00')}00\r\nDTEND:${st(a.data)}T${st(a.fim || a.inicio || '10:00')}00\r\nSUMMARY:${escI(a.titulo)}\r\nDESCRIPTION:${escI([ATIPO[a.tipo], cliente(a.leadId).empresa, a.obs].filter(Boolean).join(' – '))}\r\nEND:VEVENT`).join('\r\n');
+  offerFile('agenda-f3f.ics', `BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//F3F Energy//CRM//PT\r\n${evs}\r\nEND:VCALENDAR\r\n`, 'text/calendar', 'Exportar agenda');
+};
+
+/* parceiros */
+A.newPar = () => formModal('Novo parceiro', F_PAR, { tipo: PTIPOS[0], ultimo: today() }, o => { db.parceiros.push(Object.assign({ id: uid() }, o)); });
+A.editPar = d => { const p = byId(db.parceiros, d.id); formModal('Editar parceiro', F_PAR, p, o => { Object.assign(p, o); }); };
+A.delPar = d => confirmBox('Excluir este parceiro?', () => { db.parceiros = db.parceiros.filter(x => x.id !== d.id); });
+A.parTouch = d => { byId(db.parceiros, d.id).ultimo = today(); save(); setTimeout(render, 50); };
+
+/* reprospecção */
+A.rView = d => { UI.r_v = d.v; render(); };
+A.orcTouch = d => { byId(db.orcs, d.id).ultimoRetorno = today(); save(); setTimeout(render, 50); };
+
+/* orçamentos */
+A.newOrc = d => orcModal(null, d.lead || '');
+A.editOrc = d => orcModal(byId(db.orcs, d.id));
+A.dupOrc = d => { const o = JSON.parse(JSON.stringify(byId(db.orcs, d.id))); Object.assign(o, { id: uid(), numero: db.cfg.prefixo + db.cfg.seqOrc++, status: 'rascunho', projetoId: null, criado: today(), validade: addDays(today(), 15), ultimoRetorno: today() }); db.orcs.push(o); save(); toast(`Cópia criada: ${o.numero}.`); render(); };
+A.arqOrc = d => { byId(db.orcs, d.id).arquivado = true; save(); toast('Orçamento arquivado.'); render(); };
+A.resOrc = d => { byId(db.orcs, d.id).arquivado = false; save(); render(); };
+A.delOrc = d => confirmBox('Excluir este orçamento e as parcelas dele?', () => { db.orcs = db.orcs.filter(x => x.id !== d.id); db.pags = db.pags.filter(p => p.orcId !== d.id); });
+A.aprovar = d => { const o = byId(db.orcs, d.id); openModal(`Aprovar ${o.numero}`, `<p style="margin:0">Ao aprovar, o CRM cria o projeto com as ${(TPL[o.servico] || []).length} etapas de <b>${esc(SERV[o.servico].n)}</b> e lança as parcelas: ${esc(condicao(o))}, total ${R(orcTotal(o))}.</p>`, { saveLbl: 'Aprovar', onSave: () => { closeModal(); aprovar(o.id); } }); };
+A.orcSent = d => { const o = byId(db.orcs, d.id); if (o.status === 'rascunho') o.status = 'enviado'; o.ultimoRetorno = today(); const l = cliente(o.leadId); if (l.id && ['novo', 'contato', 'qualificado', 'visita'].includes(l.etapa)) l.etapa = 'proposta'; save(); setTimeout(render, 50); };
+A.viewOrc = d => { const o = byId(db.orcs, d.id); UI.viewing = o.id; openModal(`Proposta ${o.numero}`, propostaHTML(o), { wide: true, foot: `<button class="btn" data-act="copyProp">${ic('copy')}Copiar texto para WhatsApp</button><button class="btn" data-act="editOrc" data-id="${o.id}">${ic('edit')}Editar</button>` }); };
+A.copyProp = () => copyText(propostaTexto(byId(db.orcs, UI.viewing)));
+A.itemAdd = () => { syncItems(); draft.itens.push({ d: '', q: 1, u: 'un', v: 0 }); drawItems(); };
+A.itemDel = d => { syncItems(); draft.itens.splice(+d.i, 1); drawItems(); drawTot(); };
+A.calcApply = () => { const r = drawCalc(); if (!r) return toast('Informe o consumo.'); syncItems();
+  draft.solar = { consumo: r.consumo, hsp: r.hsp, pr: r.pr, pot: r.pot, mod: r.mod, kwp: r.kwp, ger: r.ger, eco: r.eco, payback: r.payback };
+  draft.itens = draft.itens.filter(i => i.d || +i.v); draft.itens.unshift({ d: `Sistema fotovoltaico ${N(r.kwp, 2)} kWp (${r.mod} módulos ${r.pot} W + inversor ≈ ${r.inv} kW), projeto e homologação`, q: 1, u: 'cj', v: r.valor });
+  $('#o_eco').value = r.eco; if (!$('#o_tit').value) $('#o_tit').value = `Usina fotovoltaica ${N(r.kwp, 2)} kWp`; drawItems(); drawTot(); toast('Sistema inserido nos itens.'); };
+function syncItems() { $$('#items [data-i]').forEach(el => { const it = draft.itens[+el.dataset.i]; if (it) it[el.dataset.k] = el.dataset.k === 'q' || el.dataset.k === 'v' ? (+el.value || 0) : el.value; }); }
+
+/* pagamentos */
+A.pagToggle = d => { const p = byId(db.pags, d.id); p.pagoEm = p.pagoEm ? '' : today(); save(); toast(p.pagoEm ? 'Pagamento registrado.' : 'Pagamento desfeito.'); refresh(); };
+A.newPag = () => formModal('Lançar parcela', F_PAG, { venc: today(), forma: 'boleto' }, o => { db.pags.push(Object.assign({ id: uid() }, o)); });
+A.editPag = d => { const p = byId(db.pags, d.id); formModal('Editar parcela', F_PAG, p, o => { Object.assign(p, o); }); };
+A.delPag = d => confirmBox('Excluir esta parcela?', () => { db.pags = db.pags.filter(x => x.id !== d.id); });
+
+/* projetos */
+A.newPrj = () => formModal('Novo projeto', F_PRJ, { codigo: 'PRJ-' + String(db.cfg.seqPrj).padStart(3, '0'), servico: 'solar', status: 'planejamento', inicio: today(), prazo: addDays(today(), 90) }, o => { const p = Object.assign({ id: uid(), arquivado: false, orcId: '' }, o); db.projetos.push(p); db.cfg.seqPrj++; (TPL[p.servico] || []).forEach(([titulo, peso], i) => db.tarefas.push({ id: uid(), projetoId: p.id, titulo, desc: '', data: addDays(p.inicio || today(), (i + 1) * 10), hora: '09:00', prio: 'normal', peso: null, pesoSug: peso, done: false })); toast('Projeto criado com as etapas-padrão.'); }, { wide: true });
+A.editPrj = d => { const p = byId(db.projetos, d.id); formModal('Editar projeto', F_PRJ, p, o => { Object.assign(p, o); }, { wide: true }); };
+A.prjTasks = d => { UI.t_p = d.id; UI.t_new = d.id; go('tarefas'); };
+A.prjFinish = d => { const p = byId(db.projetos, d.id); p.status = 'concluido'; save(); toast(`${p.codigo} concluído.`); render(); };
+A.arqPrj = d => { byId(db.projetos, d.id).arquivado = true; save(); toast('Projeto arquivado.'); render(); };
+A.resPrj = d => { byId(db.projetos, d.id).arquivado = false; save(); render(); };
+A.delPrj = d => confirmBox('Excluir o projeto e todas as tarefas dele?', () => { db.projetos = db.projetos.filter(x => x.id !== d.id); db.tarefas = db.tarefas.filter(t => t.projetoId !== d.id); db.orcs.forEach(o => { if (o.projetoId === d.id) o.projetoId = null; }); });
+
+/* tarefas */
+A.newTask = () => { const pid = $('#t_new').value, tt = $('#tn_t').value.trim(); if (!tt) { toast('Informe o título.'); $('#tn_t').focus(); return; }
+  const w = $('#tn_w').value; db.tarefas.push({ id: uid(), projetoId: pid, titulo: tt, desc: $('#tn_d').value.trim(), data: $('#tn_dt').value, hora: $('#tn_h').value, prio: $('#tn_p').value, peso: w === '' ? null : +w, done: false });
+  const p = byId(db.projetos, pid); if (p.status === 'planejamento') p.status = 'andamento'; save(); toast('Tarefa criada.'); render(); };
+A.taskToggle = d => { const t = byId(db.tarefas, d.id); t.done = !t.done; const p = byId(db.projetos, t.projetoId); if (t.done && p.status === 'planejamento') p.status = 'andamento'; save(); render(); };
+A.editTask = d => { const t = byId(db.tarefas, d.id); formModal('Editar tarefa', F_TASK, Object.assign({}, t, { peso: t.peso ?? '' }), o => { Object.assign(t, o, { peso: o.peso === '' ? null : +o.peso }); }); };
+A.delTask = d => confirmBox('Excluir esta tarefa?', () => { db.tarefas = db.tarefas.filter(x => x.id !== d.id); });
+
+/* modelos / config / backup */
+A.newModelo = () => formModal('Novo modelo', F_MOD, { tipo: 'captacao' }, o => { db.modelos.push(Object.assign({ id: uid() }, o)); });
+A.editModelo = d => { const m = byId(db.modelos, d.id); formModal('Editar modelo', F_MOD, m, o => { Object.assign(m, o); }, { wide: true }); };
+A.delModelo = d => confirmBox('Excluir este modelo?', () => { db.modelos = db.modelos.filter(x => x.id !== d.id); });
+A.saveCfg = () => { const o = readForm(F_CFG); if (!o.empresa) return toast('Informe o nome da empresa.'); Object.assign(db.cfg, o); save(); toast('Configurações salvas.'); render(); };
+A.exportJson = () => { db.cfg.ultimoBackup = new Date().toISOString(); save(); offerFile(`backup-f3f-crm-${today()}.json`, JSON.stringify(db, null, 1), 'application/json', 'Exportar backup'); };
+A.pasteJson = () => openModal('Restaurar backup', `<label class="fld"><span>Cole o conteúdo do arquivo de backup</span><textarea id="imptxt" rows="10" class="mono" style="font-size:12px"></textarea></label>`, { saveLbl: 'Restaurar', onSave: () => restore($('#imptxt').value) });
+function restore(txt) { try { const o = JSON.parse(txt); if (!o || !o.cfg || !Array.isArray(o.leads)) throw 0; db = o; const b = blank(); for (const k of Object.keys(b)) if (db[k] == null) db[k] = b[k]; save(); closeModal(); toast('Backup restaurado.'); render(); } catch (e) { toast('Arquivo inválido. Use um backup exportado por este CRM.'); } }
+A.wipe = () => confirmBox('Apagar todos os leads, orçamentos, pagamentos, projetos e tarefas? Essa ação não tem volta.', () => { const cfg = db.cfg, mods = db.modelos; db = blank(); db.cfg = Object.assign(cfg, { seqOrc: 1, seqPrj: 1 }); db.modelos = mods; }, 'Apagar tudo');
+A.reseed = () => confirmBox('Substituir os dados atuais pelos dados de demonstração?', () => { db = seed(); }, 'Recarregar');
+
+/* handlers de change/input em elementos de tabela */
+const CH = {};
+CH.cStatus = el => { const c = byId(db.contatos, el.dataset.id); c.status = el.value; save(); refresh(); };
+CH.prjStatus = el => { byId(db.projetos, el.dataset.id).status = el.value; save(); render(); };
+CH.waModelo = el => { const m = byId(db.modelos, el.value); db.wa.modeloId = el.value; if (m) db.wa.texto = m.texto; save(); render(); };
+CH.waTexto = el => { db.wa.texto = el.value; save(); const f = db.wa.fila.map(id => byId(db.contatos, id)).filter(Boolean)[0]; $('#wa_prev').textContent = fill(el.value, varsContato(f || { empresa: 'Frigorífico Exemplo', contato: 'João', cidade: 'Lages', uf: 'SC', segmento: 'Indústria', servico: 'solar' })); const a = $('[data-act="waSendNext"]'); if (a && f) a.href = waLink(f.telefone, fill(el.value, varsContato(f))); };
+CH.waCad = el => { db.cfg.cadencia = Math.max(1, +el.value || 7); save(); };
+
+/* ============================================================
+   ROTEAMENTO E EVENTOS
+   ============================================================ */
+let route = 'dashboard';
+function go(p) { if (!P[p]) p = 'dashboard'; route = p; try { history.replaceState(null, '', '#' + p); } catch (e) {} $('#app').classList.remove('open'); $('#scrim').hidden = true; $('#bdrop').hidden = true; $('#gdrop').hidden = true; render(); window.scrollTo(0, 0); }
+function refresh() { const p = P[route]; const box = $('#pg-list'); if (p.list && box) box.innerHTML = p.list(); else render(); }
+function render() {
+  $('#nav').innerHTML = NAV.map(([g, items]) => `<div class="grp">${g}</div>` + items.map(([k, n]) => {
+    const cnt = k === 'leads' ? db.leads.filter(l => !l.arquivado && !['ganho', 'perdido'].includes(l.etapa)).length : k === 'tarefas' ? db.tarefas.filter(t => !t.done && t.data && t.data < today()).length : k === 'whatsapp' ? db.wa.fila.length : '';
+    return `<a href="#${k}" class="${route === k ? 'on' : ''}" data-act="go" data-p="${k}">${ic(k)}${n}${cnt ? `<span class="cnt">${cnt}</span>` : ''}</a>`; }).join('')).join('');
+  $('#ptitle').textContent = TITLES[route];
+  const al = alerts().filter(a => a.sev === 'bad' || a.sev === 'warn').length; const bc = $('#bellcnt'); bc.hidden = !al; bc.textContent = al;
+  $('#sidefoot').innerHTML = `<span>${ic('backup')} Dados salvos neste navegador</span><span>Último backup: ${db.cfg.ultimoBackup ? fD(db.cfg.ultimoBackup.slice(0, 10)) : 'nunca'}</span><a href="#backup" data-act="go" data-p="backup">Fazer backup agora</a>`;
+  const demo = db.demo ? `<div class="demo-band">${ic('info')}<span style="flex:1;min-width:200px">Você está vendo <b style="color:var(--fg)">dados de demonstração</b> (clientes e valores fictícios da Serra Catarinense). Quando quiser usar de verdade, apague e comece a cadastrar.</span><button class="btn sm" data-act="go" data-p="backup">Começar do zero</button></div>` : '';
+  $('#content').innerHTML = demo + P[route]();
+  if (route === 'captacao') gmUpdate();
+  if (route === 'backup') { const f = $('#impfile'); f && f.addEventListener('change', () => readFile(f, restore)); }
+}
+function readFile(input, fn) { const f = input.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => fn(String(r.result)); r.readAsText(f, 'utf-8'); }
+function gmUpdate() { const a = $('#gm_go'); if (!a) return; a.href = 'https://www.google.com/maps/search/' + encodeURIComponent(`${$('#gm_n').value} em ${$('#gm_c').value} ${$('#gm_u').value}`); }
+
+document.addEventListener('click', e => {
+  const t = e.target.closest('[data-act]'); if (!t) { if (!e.target.closest('.gs')) $('#gdrop').hidden = true; if (!e.target.closest('[data-act="bell"]') && !e.target.closest('#bdrop')) $('#bdrop').hidden = true; return; }
+  const fn = A[t.dataset.act]; if (!fn) return;
+  if (t.tagName === 'A' && t.getAttribute('href')?.startsWith('#')) e.preventDefault();
+  if (t.tagName === 'BUTTON' && t.closest('form')) e.preventDefault();
+  fn(t.dataset, t, e);
+});
+document.addEventListener('input', e => {
+  const t = e.target;
+  if (t.dataset.f) { UI[t.dataset.f] = t.value; if (t.dataset.f === 'c_q' || t.dataset.f.startsWith('c_')) UI.csel = new Set(); t.dataset.full ? keepFocus(render, t.id) : refresh(); return; }
+  if (t.dataset.actInput && CH[t.dataset.actInput]) return CH[t.dataset.actInput](t);
+  if (t.closest('#items')) { syncItems(); const i = +t.dataset.i, it = draft.itens[i]; const el = $('#it_t' + i); if (el) el.textContent = R((+it.q || 0) * (+it.v || 0)); drawTot(); return; }
+  if (t.dataset.k && route === 'captacao') { UI[t.dataset.k] = t.value; gmUpdate(); return; }
+  if (['o_desc', 'o_ent', 'o_np'].includes(t.id)) return drawTot();
+  if (['s_cons', 's_hsp', 's_pr', 's_pot'].includes(t.id)) return drawCalc();
+  if (t.id === 'o_sv2') { $('#calcbox').hidden = !['solar', 'gd'].includes(t.value); drawCalc(); }
+  if (t.id === 'o_lead') { const l = cliente(t.value); if (l.consumo && $('#s_cons') && !$('#s_cons').value) { $('#s_cons').value = l.consumo; drawCalc(); } if (l.servico) { $('#o_sv2').value = l.servico; $('#calcbox').hidden = !['solar', 'gd'].includes(l.servico); drawCalc(); } }
+});
+document.addEventListener('change', e => { const t = e.target; if (t.dataset.actChange && CH[t.dataset.actChange]) CH[t.dataset.actChange](t); if (t.id === 'csvfile') readFile(t, txt => { $('#csvtxt').value = txt; }); });
+function keepFocus(fn, id) { const el = document.getElementById(id); const pos = el && el.selectionStart; fn(); const n = document.getElementById(id); if (n) { n.focus(); try { if (pos != null && n.setSelectionRange) n.setSelectionRange(pos, pos); } catch (e) {} } }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { if ($('#modal').innerHTML) closeModal(); $('#gdrop').hidden = true; $('#bdrop').hidden = true; } });
+
+/* drag and drop do funil */
+let dragId = null;
+document.addEventListener('dragstart', e => { const c = e.target.closest && e.target.closest('[data-drag]'); if (c) { dragId = c.dataset.drag; e.dataTransfer.effectAllowed = 'move'; try { e.dataTransfer.setData('text/plain', dragId); } catch (x) {} } });
+document.addEventListener('dragover', e => { const col = e.target.closest && e.target.closest('[data-drop]'); if (col && dragId) { e.preventDefault(); $$('.col.over').forEach(x => x !== col && x.classList.remove('over')); col.classList.add('over'); } });
+document.addEventListener('drop', e => { const col = e.target.closest && e.target.closest('[data-drop]'); if (col && dragId) { e.preventDefault(); const l = byId(db.leads, dragId); if (l && l.etapa !== col.dataset.drop) { l.etapa = col.dataset.drop; l.atualizado = today(); save(); toast(`${l.empresa} → ${etapaN(l.etapa)}`); } dragId = null; refresh(); } });
+document.addEventListener('dragend', () => { dragId = null; $$('.col.over').forEach(x => x.classList.remove('over')); });
+
+/* busca global */
+$('#gsearch').addEventListener('input', e => {
+  const q = e.target.value.trim(); const d = $('#gdrop'); $('#bdrop').hidden = true;
+  if (q.length < 2) { d.hidden = true; return; }
+  const res = [
+    ...db.leads.filter(l => has(q, l.empresa, l.contato, l.cidade, l.telefone)).map(l => ({ t: l.empresa, s: `Lead · ${SERV[l.servico]?.n || ''} · ${etapaN(l.etapa)}`, p: 'leads', k: 'l_q', v: l.empresa })),
+    ...db.contatos.filter(c => has(q, c.empresa, c.contato, c.telefone)).map(c => ({ t: c.empresa, s: `Captação · ${CST[c.status]?.[0]}`, p: 'captacao', k: 'c_q', v: c.empresa })),
+    ...db.orcs.filter(o => has(q, o.numero, o.titulo, cliente(o.leadId).empresa)).map(o => ({ t: `${o.numero} – ${o.titulo}`, s: `Orçamento · ${R(orcTotal(o))} · ${OST[o.status][0]}`, p: 'orcamentos', k: 'o_q', v: o.numero })),
+    ...db.projetos.filter(p => has(q, p.codigo, p.nome)).map(p => ({ t: `${p.codigo} – ${p.nome}`, s: `Projeto · ${progresso(p)}%`, p: 'projetos' })),
+    ...db.parceiros.filter(p => has(q, p.nome, p.contato)).map(p => ({ t: p.nome, s: `Parceiro · ${p.tipo}`, p: 'parceiros', k: 'pa_q', v: p.nome }))
+  ].slice(0, 12);
+  d.innerHTML = res.map((r, i) => `<button class="it" data-act="gpick" data-i="${i}"><span><b>${esc(r.t)}</b><small>${esc(r.s)}</small></span></button>`).join('') || '<div class="empty">Nada encontrado.</div>';
+  UI.gres = res; d.hidden = false;
+});
+A.gpick = d => { const r = UI.gres[+d.i]; if (r.k) UI[r.k] = r.v; $('#gsearch').value = ''; $('#gdrop').hidden = true; go(r.p); };
+
+/* init */
+try { const th = localStorage.getItem(KEY + '-theme'); if (th) document.documentElement.dataset.theme = th; } catch (e) {}
+load();
+const h = (location.hash || '').slice(1);
+go(P[h] ? h : 'dashboard');
+save();
+</script>
